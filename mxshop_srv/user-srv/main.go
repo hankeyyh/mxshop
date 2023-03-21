@@ -1,17 +1,26 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"github.com/hankeyyh/mxshop_user_srv/model"
+	"github.com/hankeyyh/mxshop_user_srv/handler"
+	"github.com/hankeyyh/mxshop_user_srv/proto"
+	"google.golang.org/grpc"
+	"net"
 )
 
+/*
+todo log pkg
+todo 中间件打印return err，打印耗时
+todo 监听ip，端口作为启动参数传入
+*/
 func main() {
-	user := model.UserInstance()
-	recList, err := user.BatchUser(context.Background())
+	server := grpc.NewServer()
+	proto.RegisterUserServer(server, &handler.UserService{})
+	listener, err := net.Listen("tcp", ":8083")
 	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(recList)
+		panic(err)
+	}
+	err = server.Serve(listener)
+	if err != nil {
+		panic(err)
 	}
 }

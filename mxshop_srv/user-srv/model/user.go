@@ -1,7 +1,6 @@
 package model
 
 import (
-	"context"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -23,7 +22,15 @@ func UserInstance() TableUser {
 }
 
 // BatchUser 批量查询用户
-func (t TableUser) BatchUser(ctx context.Context) (recList []User, err error) {
-	err = t.db.Find(&recList).Error
+func (t TableUser) BatchUser(page int, pageSize int) (recList []User, err error) {
+	err = t.db.Find(&recList).
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).Error
 	return recList, err
+}
+
+// GetUserCnt 查询用户数量
+func (t TableUser) GetUserCnt() (cnt int64, err error) {
+	err = t.db.Model(&User{}).Count(&cnt).Error
+	return
 }
