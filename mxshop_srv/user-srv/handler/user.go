@@ -71,8 +71,3 @@ func (u UserService) CheckPassWord(ctx context.Context, info *proto.PasswordChec
 	//TODO implement me
 	panic("implement me")
 }
-
-func (u UserService) mustEmbedUnimplementedUserServer() {
-	//TODO implement me
-	panic("implement me")
-}

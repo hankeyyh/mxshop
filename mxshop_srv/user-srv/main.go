@@ -19,8 +19,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// todo 主进程退出信号监听
+
+	// 启动服务
 	err = server.Serve(listener)
 	if err != nil {
 		panic(err)
 	}
+
+	// todo 服务注册
+
 }
