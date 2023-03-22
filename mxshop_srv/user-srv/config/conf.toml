@@ -1,4 +1,4 @@
-
+[db.mysql]
 db_name = "mxshop_user_srv"
 user_name = "root"
 password = ""

@@ -1,17 +1,30 @@
 package config
 
-import "os"
+import (
+	"github.com/BurntSushi/toml"
+)
+
+type dbConfig struct {
+	DBName   string `toml:"db_name"`
+	UserName string `toml:"user_name"`
+	Password string `toml:"password"`
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+}
+
+type config struct {
+	Db map[string]dbConfig `toml:"db"`
+}
 
 var (
-	Str string
+	Conf config
 )
 
 func initConfig() {
-	content, err := os.ReadFile("config/conf.toml")
+	_, err := toml.DecodeFile("config/conf.toml", &Conf)
 	if err != nil {
 		panic(err)
 	}
-	Str = string(content)
 }
 
 func init() {
