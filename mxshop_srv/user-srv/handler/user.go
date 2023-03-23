@@ -2,14 +2,31 @@ package handler
 
 import (
 	"context"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"github.com/hankeyyh/mxshop_user_srv/model"
 	"github.com/hankeyyh/mxshop_user_srv/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
+	"time"
 )
 
 type UserService struct {
 	proto.UnimplementedUserServer
+}
+
+func (u UserService) convertToUserInfo(rec model.User) *proto.UserInfoResponse {
+	var user = &proto.UserInfoResponse{
+		Id:       rec.Id,
+		Password: rec.Password,
+		Mobile:   rec.Mobile,
+		Nickname: rec.Nickname,
+		Birthday: uint64(rec.Birthday.Unix()),
+		Gender:   rec.Gender,
+		Role:     rec.Role,
+	}
+	return user
 }
 
 func (u UserService) GetUserList(ctx context.Context, request *proto.PageInfo) (*proto.UserListResonse, error) {
@@ -30,15 +47,7 @@ func (u UserService) GetUserList(ctx context.Context, request *proto.PageInfo) (
 
 	var data = make([]*proto.UserInfoResponse, 0, len(userList))
 	for _, user := range userList {
-		data = append(data, &proto.UserInfoResponse{
-			Id:       user.Id,
-			Password: user.Password,
-			Mobile:   user.Mobile,
-			Nickname: user.Nickname,
-			Birthday: user.Birthday,
-			Gender:   user.Gender,
-			Role:     user.Role,
-		})
+		data = append(data, u.convertToUserInfo(user))
 	}
 
 	rsp := new(proto.UserListResonse)
@@ -48,26 +57,83 @@ func (u UserService) GetUserList(ctx context.Context, request *proto.PageInfo) (
 }
 
 func (u UserService) GetUserByMobile(ctx context.Context, request *proto.MobileRequest) (*proto.UserInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	mobile := request.GetMobile()
+	rec, err := model.UserInstance().GetUserByMobile(mobile)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return u.convertToUserInfo(rec), nil
 }
 
 func (u UserService) GetUserById(ctx context.Context, request *proto.IdRequest) (*proto.UserInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	rec, err := model.UserInstance().GetUser(id)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return u.convertToUserInfo(rec), nil
 }
 
-func (u UserService) CreateUser(ctx context.Context, info *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserService) CreateUser(ctx context.Context, request *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
+	mobile := request.GetMobile()
+	nickName := request.GetNickname()
+	password := request.GetPassword()
+
+	_, err := model.UserInstance().GetUserByMobile(mobile)
+	if err == nil {
+		fmt.Println("用户已存在")
+		return nil, fmt.Errorf("用户已存在")
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// db异常
+		return nil, err
+	}
+
+	var user = model.User{
+		Mobile:   mobile,
+		Nickname: nickName,
+		Password: password,
+	}
+	if err = model.UserInstance().CreateUser(&user); err != nil {
+		return nil, err
+	}
+
+	return u.convertToUserInfo(user), err
 }
 
-func (u UserService) UpdateUser(ctx context.Context, info *proto.UpdateUserInfo) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserService) UpdateUser(ctx context.Context, request *proto.UpdateUserInfo) (*emptypb.Empty, error) {
+	id := request.GetId()
+	gender := request.GetGender()
+	nickName := request.GetNickname()
+	birthday := request.GetBirthday()
+
+	user, err := model.UserInstance().GetUser(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("用户不存在")
+		}
+		return nil, err
+	}
+	b := int64(birthday)
+	user.Gender = gender
+	user.Nickname = nickName
+	user.Birthday = time.Unix(b, 0).UTC()
+	if err = model.UserInstance().UpdateUser(user); err != nil {
+		return nil, err
+	}
+	rsp := new(emptypb.Empty)
+	return rsp, nil
 }
 
-func (u UserService) CheckPassWord(ctx context.Context, info *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserService) CheckPassWord(ctx context.Context, request *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
+	pwd := request.GetPassword()
+	encryptedPwd := request.GetEncryptedPassword()
+	pwdDec, err := base64.StdEncoding.DecodeString(encryptedPwd)
+	if err != nil {
+		return nil, err
+	}
+	rsp := new(proto.CheckResponse)
+	rsp.Success = pwd == string(pwdDec)
+	return rsp, nil
 }

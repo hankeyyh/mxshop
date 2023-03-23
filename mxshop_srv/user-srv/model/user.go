@@ -34,3 +34,25 @@ func (t TableUser) GetUserCnt() (cnt int64, err error) {
 	err = t.db.Model(&User{}).Count(&cnt).Error
 	return
 }
+
+// GetUserByMobile 根据手机号查询用户
+func (t TableUser) GetUserByMobile(mobile string) (rec User, err error) {
+	err = t.db.Where("mobile = ?", mobile).First(&rec).Error
+	return
+}
+
+// GetUser 查询用户
+func (t TableUser) GetUser(id int32) (rec User, err error) {
+	err = t.db.Where("id = ?", id).First(&rec).Error
+	return
+}
+
+func (t TableUser) CreateUser(rec *User) error {
+	err := t.db.Create(rec).Error
+	return err
+}
+
+func (t TableUser) UpdateUser(rec User) error {
+	err := t.db.Save(&rec).Error
+	return err
+}
