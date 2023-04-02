@@ -12,8 +12,14 @@ type dbConfig struct {
 	Port     int    `toml:"port"`
 }
 
+type logConfig struct {
+	Level    string `toml:"level"`
+	FilePath string `toml:"file_path"`
+}
+
 type config struct {
-	Db map[string]dbConfig `toml:"db"`
+	Db  map[string]dbConfig `toml:"db"`
+	Log logConfig           `toml:"log"`
 }
 
 var (

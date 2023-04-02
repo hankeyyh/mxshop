@@ -35,13 +35,11 @@ func (u UserService) GetUserList(ctx context.Context, request *proto.PageInfo) (
 
 	total, err := model.UserInstance().GetUserCnt()
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
 	userList, err := model.UserInstance().BatchUser(int(pn), int(psize))
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -60,7 +58,6 @@ func (u UserService) GetUserByMobile(ctx context.Context, request *proto.MobileR
 	mobile := request.GetMobile()
 	rec, err := model.UserInstance().GetUserByMobile(mobile)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return u.convertToUserInfo(rec), nil
@@ -70,7 +67,6 @@ func (u UserService) GetUserById(ctx context.Context, request *proto.IdRequest) 
 	id := request.GetId()
 	rec, err := model.UserInstance().GetUser(id)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return u.convertToUserInfo(rec), nil
@@ -83,7 +79,6 @@ func (u UserService) CreateUser(ctx context.Context, request *proto.CreateUserIn
 
 	_, err := model.UserInstance().GetUserByMobile(mobile)
 	if err == nil {
-		fmt.Println("用户已存在")
 		return nil, fmt.Errorf("用户已存在")
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		// db异常

@@ -1,19 +1,28 @@
 package main
 
 import (
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/hankeyyh/mxshop_user_srv/handler"
+	"github.com/hankeyyh/mxshop_user_srv/logger"
+
+	//"github.com/hankeyyh/mxshop_user_srv/interceptor"
 	"github.com/hankeyyh/mxshop_user_srv/proto"
 	"google.golang.org/grpc"
 	"net"
 )
 
 /*
-todo log pkg
-todo 中间件打印return err，打印耗时
 todo 监听ip，端口作为启动参数传入
 */
 func main() {
-	server := grpc.NewServer()
+	opt := grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+		grpc_ctxtags.UnaryServerInterceptor(),
+		grpc_zap.UnaryServerInterceptor(logger.DefaultLogger()),
+	))
+
+	server := grpc.NewServer(opt)
 	proto.RegisterUserServer(server, &handler.UserService{})
 	listener, err := net.Listen("tcp", ":8083")
 	if err != nil {
