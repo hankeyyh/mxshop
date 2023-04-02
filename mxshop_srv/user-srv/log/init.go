@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"github.com/hankeyyh/mxshop_user_srv/config"
