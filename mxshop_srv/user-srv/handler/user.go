@@ -2,11 +2,11 @@ package handler
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/hankeyyh/mxshop_user_srv/model"
 	"github.com/hankeyyh/mxshop_user_srv/proto"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 	"time"
@@ -90,10 +90,14 @@ func (u UserService) CreateUser(ctx context.Context, request *proto.CreateUserIn
 		return nil, err
 	}
 
+	hpwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	if err != nil {
+		return nil, fmt.Errorf("密码加密错误")
+	}
 	var user = model.User{
 		Mobile:   mobile,
 		Nickname: nickName,
-		Password: password,
+		Password: string(hpwd),
 	}
 	if err = model.UserInstance().CreateUser(&user); err != nil {
 		return nil, err
@@ -129,11 +133,9 @@ func (u UserService) UpdateUser(ctx context.Context, request *proto.UpdateUserIn
 func (u UserService) CheckPassWord(ctx context.Context, request *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
 	pwd := request.GetPassword()
 	encryptedPwd := request.GetEncryptedPassword()
-	pwdDec, err := base64.StdEncoding.DecodeString(encryptedPwd)
-	if err != nil {
-		return nil, err
-	}
+	err := bcrypt.CompareHashAndPassword([]byte(encryptedPwd), []byte(pwd))
+
 	rsp := new(proto.CheckResponse)
-	rsp.Success = pwd == string(pwdDec)
+	rsp.Success = err == nil
 	return rsp, nil
 }

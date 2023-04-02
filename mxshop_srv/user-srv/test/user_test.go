@@ -2,9 +2,9 @@ package test
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"github.com/hankeyyh/mxshop_user_srv/proto"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"testing"
 )
@@ -60,9 +60,9 @@ func TestGetUserById(t *testing.T) {
 func TestCreateUser(t *testing.T) {
 	defer conn.Close()
 	rsp, err := client.CreateUser(context.Background(), &proto.CreateUserInfo{
-		Nickname: "yyh3",
+		Nickname: "q1",
 		Password: "44444",
-		Mobile:   "111122334455",
+		Mobile:   "1551456",
 	})
 	if err != nil {
 		panic(err)
@@ -86,12 +86,18 @@ func TestUpdateUser(t *testing.T) {
 
 func TestCheckPassWord(t *testing.T) {
 	defer conn.Close()
+	pwd := []byte("44444789564")
+	hpwd, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	rsp, err := client.CheckPassWord(context.Background(), &proto.PasswordCheckInfo{
-		Password:          "44444",
-		EncryptedPassword: base64.StdEncoding.EncodeToString([]byte("44444")),
+		Password:          string(pwd),
+		EncryptedPassword: string(hpwd),
 	})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(rsp)
+	fmt.Println(rsp.GetSuccess())
 }
