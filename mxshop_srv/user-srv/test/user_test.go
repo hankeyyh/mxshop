@@ -62,7 +62,7 @@ func TestCreateUser(t *testing.T) {
 	rsp, err := client.CreateUser(context.Background(), &proto.CreateUserInfo{
 		Nickname: "q1",
 		Password: "44444",
-		Mobile:   "1551456",
+		Mobile:   "15514567",
 	})
 	if err != nil {
 		panic(err)

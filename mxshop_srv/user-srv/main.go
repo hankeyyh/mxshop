@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -10,6 +11,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
 	//"github.com/hankeyyh/mxshop_user_srv/interceptor"
@@ -21,6 +23,10 @@ import (
 todo 监听ip，端口作为启动参数传入
 */
 func main() {
+	host := flag.String("host", "localhost", "Host address")
+	port := flag.Int("port", 8083, "Port")
+	addr := *host + ":" + strconv.Itoa(*port)
+
 	// 中间件注册
 	opt := grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 		grpc_ctxtags.UnaryServerInterceptor(),
@@ -30,7 +36,7 @@ func main() {
 	// 创建服务
 	server := grpc.NewServer(opt)
 	proto.RegisterUserServer(server, &handler.UserService{})
-	listener, err := net.Listen("tcp", ":8083")
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
 	}

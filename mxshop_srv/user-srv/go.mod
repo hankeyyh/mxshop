@@ -1,10 +1,11 @@
 module github.com/hankeyyh/mxshop_user_srv
 
-go 1.18
+go 1.19
 
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
+	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.7.0
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.30.0
@@ -19,7 +20,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
