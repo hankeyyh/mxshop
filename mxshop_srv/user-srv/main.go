@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -19,9 +20,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-/*
-todo 监听ip，端口作为启动参数传入
-*/
 func main() {
 	host := flag.String("host", "localhost", "Host address")
 	port := flag.Int("port", 8083, "Port")
@@ -56,6 +54,7 @@ func main() {
 	// todo 服务注册
 
 	// 启动服务
+	fmt.Printf("Server Running at %s\n", addr)
 	err = server.Serve(listener)
 	if err != nil {
 		panic(err)
