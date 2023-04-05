@@ -19,7 +19,7 @@ type logConfig struct {
 
 type config struct {
 	Db  map[string]dbConfig `toml:"db"`
-	Log logConfig           `toml:"storage"`
+	Log logConfig           `toml:"log"`
 }
 
 var (

@@ -14,13 +14,17 @@ func DefaultLogger() *zap.Logger {
 func InitDefaultLogger() {
 	logConfig := config.Conf.Log
 	var err error
+	var defaultConf zap.Config
 	if logConfig.Level == "debug" {
-		zap.NewProductionConfig()
-		defaultLogger, err = zap.NewDevelopment()
+		defaultConf = zap.NewProductionConfig()
 	} else {
-		defaultLogger, err = zap.NewProduction()
+		defaultConf = zap.NewDevelopmentConfig()
 	}
-	defaultLogger.WithOptions()
+	defaultConf.OutputPaths = []string{
+		"stderr",
+		logConfig.FilePath,
+	}
+	defaultLogger, err = defaultConf.Build()
 	if err != nil {
 		panic(err)
 	}
