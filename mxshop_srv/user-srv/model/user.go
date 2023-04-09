@@ -23,9 +23,9 @@ func UserInstance() TableUser {
 
 // BatchUser 批量查询用户
 func (t TableUser) BatchUser(page int, pageSize int) (recList []User, err error) {
-	err = t.db.Find(&recList).
-		Offset((page - 1) * pageSize).
-		Limit(pageSize).Error
+	err = t.db.Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&recList).Error
 	return recList, err
 }
 
