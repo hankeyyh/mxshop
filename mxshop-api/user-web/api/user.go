@@ -131,23 +131,40 @@ func PasswordLogin(ctx *gin.Context) {
 	}
 	client := proto.NewUserClient(conn)
 
+	// 获取用户
 	user, err := client.GetUserByMobile(context.Background(), &proto.MobileRequest{
 		Mobile: passwordLoginForm.Mobile})
 	if err != nil {
-		HandleGrpcErrorToHttp(err, ctx)
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				ctx.JSON(http.StatusBadRequest, map[string]string{
+					"mobile": "用户不存在",
+				})
+			default:
+				ctx.JSON(http.StatusInternalServerError, map[string]string{
+					"mobile": "服务异常，登录失败",
+				})
+			}
+		}
 		return
 	}
 
+	// 校验密码
 	rsp, err := client.CheckPassWord(context.Background(), &proto.PasswordCheckInfo{
 		Password:          passwordLoginForm.PassWord,
 		EncryptedPassword: user.GetPassword(),
 	})
 	if err != nil {
-		HandleGrpcErrorToHttp(err, ctx)
+		ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"password": "服务异常，登录失败",
+		})
 		return
 	}
 	if !rsp.GetSuccess() {
-		zap.S().Infof("密码验证失败")
+		ctx.JSON(http.StatusBadRequest, map[string]string{
+			"msg": "密码错误",
+		})
 		return
 	}
 	ctx.JSON(http.StatusOK, response.UserResponse{
