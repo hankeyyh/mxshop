@@ -1,3 +1,0 @@
-[log]
-level = "debug"
-file_path = "./storage/service.log"

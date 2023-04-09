@@ -1,6 +1,9 @@
 package model
 
 import (
+	"errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -38,12 +41,18 @@ func (t TableUser) GetUserCnt() (cnt int64, err error) {
 // GetUserByMobile 根据手机号查询用户
 func (t TableUser) GetUserByMobile(mobile string) (rec User, err error) {
 	err = t.db.Where("mobile = ?", mobile).First(&rec).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = status.Error(codes.NotFound, err.Error())
+	}
 	return
 }
 
 // GetUser 查询用户
 func (t TableUser) GetUser(id int32) (rec User, err error) {
 	err = t.db.Where("id = ?", id).First(&rec).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = status.Error(codes.NotFound, err.Error())
+	}
 	return
 }
 

@@ -1,0 +1,8 @@
+name: 'user-web'
+user_srv:
+  host: "127.0.0.1"
+  port: 8083
+
+log:
+  level: "debug"
+  file_path: "user-web/storage/service.log"
