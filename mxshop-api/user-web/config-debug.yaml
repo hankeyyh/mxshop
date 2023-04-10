@@ -6,3 +6,6 @@ user_srv:
 log:
   level: "debug"
   file_path: "user-web/storage/service.log"
+
+jwt:
+  key: "5WVdD8p2n^aK4MQv"

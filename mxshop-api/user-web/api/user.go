@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
@@ -12,6 +13,8 @@ import (
 	"mxshop-api/user-web/forms"
 	"mxshop-api/user-web/global"
 	"mxshop-api/user-web/global/response"
+	middlewares "mxshop-api/user-web/middleware"
+	"mxshop-api/user-web/model"
 	"mxshop-api/user-web/proto"
 	"net/http"
 	"strconv"
@@ -167,11 +170,29 @@ func PasswordLogin(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, response.UserResponse{
-		Id:       user.GetId(),
-		NickName: user.GetNickname(),
-		Birthday: response.JsonTime(time.Unix(int64(user.Birthday), 0)),
-		Gender:   user.GetGender(),
-		Mobile:   user.GetMobile(),
+
+	// 生成token
+	j := middlewares.NewJWT()
+	token, err := j.CreateToken(model.CustomClaims{
+		ID:          uint(user.GetId()),
+		NickName:    user.GetNickname(),
+		AuthorityId: uint(user.GetRole()),
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix(),
+			ExpiresAt: time.Now().Unix() + (24 * 3600 * 30), //30天过期
+			Issuer:    "mxshop",
+		},
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "生成token失败",
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         user.GetId(),
+		"nick_name":  user.GetNickname(),
+		"token":      token,
+		"expired_at": (time.Now().Unix() + 3600*24*30) * 1000,
 	})
 }
