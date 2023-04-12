@@ -68,6 +68,9 @@ func HandleValidatorError(ctx *gin.Context, err error) {
 }
 
 func GetUserList(ctx *gin.Context) {
+	userId, _ := ctx.Get("userId")
+	zap.S().Info("访问用户: ", userId)
+
 	userSrvConf := global.ServerConfig.UserSrvInfo
 	addr := fmt.Sprintf("%s:%d", userSrvConf.Host, userSrvConf.Port)
 
