@@ -127,6 +127,14 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
+	// 图形验证码验证
+	if !store.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, false) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"captcha": "验证码错误",
+		})
+		return
+	}
+
 	// 根据mobile查询用户
 	userSrvConf := global.ServerConfig.UserSrvInfo
 	addr := fmt.Sprintf("%s:%d", userSrvConf.Host, userSrvConf.Port)

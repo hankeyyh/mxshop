@@ -9,5 +9,6 @@ func InitBaseRouter(group *gin.RouterGroup) {
 	g := group.Group("base")
 	{
 		g.POST("login", api.PasswordLogin)
+		g.GET("captcha", api.GetCaptcha)
 	}
 }
