@@ -2,7 +2,7 @@ package interceptor
 
 import (
 	"context"
-	"github.com/hankeyyh/mxshop_user_srv/log"
+	"github.com/hankeyyh/mxshop-srv/user-srv/log"
 	"google.golang.org/grpc"
 	"time"
 )

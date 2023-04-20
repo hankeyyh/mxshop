@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/hankeyyh/mxshop_user_srv/config"
+	"github.com/hankeyyh/mxshop-srv/user-srv/config"
 	"go.uber.org/zap"
 )
 

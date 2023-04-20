@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/hankeyyh/mxshop_user_srv/proto"
+	"github.com/hankeyyh/mxshop-srv/user-srv/proto"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"testing"
