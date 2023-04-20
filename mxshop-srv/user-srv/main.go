@@ -7,17 +7,18 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	health_handler "github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/handler"
+	health_pb "github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/proto"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/handler"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/log"
+	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/proto"
+	"google.golang.org/grpc"
 	"net"
 	"os"
 	"os/signal"
 	"strconv"
 	"sync"
 	"syscall"
-	//"github.com/hankeyyh/mxshop-srv/user-srv/interceptor"
-	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/proto"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -52,6 +53,7 @@ func main() {
 	}()
 
 	// todo 服务注册
+	health_pb.RegisterHealthServer(server, &health_handler.HealthCheckService{})
 
 	// 启动服务
 	fmt.Printf("Server Running at %s\n", addr)
