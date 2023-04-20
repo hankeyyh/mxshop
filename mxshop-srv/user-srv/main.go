@@ -7,8 +7,8 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"github.com/hankeyyh/mxshop-srv/user-srv/handler"
-	"github.com/hankeyyh/mxshop-srv/user-srv/log"
+	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/handler"
+	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/log"
 	"net"
 	"os"
 	"os/signal"
@@ -16,7 +16,7 @@ import (
 	"sync"
 	"syscall"
 	//"github.com/hankeyyh/mxshop-srv/user-srv/interceptor"
-	"github.com/hankeyyh/mxshop-srv/user-srv/proto"
+	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/proto"
 	"google.golang.org/grpc"
 )
 

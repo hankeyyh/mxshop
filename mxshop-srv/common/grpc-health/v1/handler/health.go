@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"github.com/hankeyyh/mxshop-srv/common/grpc-health/v1/proto"
+	"github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
