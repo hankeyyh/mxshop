@@ -1,4 +1,4 @@
-module github.com/hankeyyh/mxshop_user_srv
+module github.com/hankeyyh/mxshop-srv/user-srv
 
 go 1.19
 
