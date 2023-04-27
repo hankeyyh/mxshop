@@ -64,7 +64,7 @@ func main() {
 	err = consulClient.Register(serviceConf.ServiceName,
 		serviceConf.ServiceName,
 		serviceConf.ServiceTags,
-		"host.docker.internal",
+		"host.docker.internal", // todo 如何放入配置
 		serviceConf.Port)
 	if err != nil {
 		panic(err)
