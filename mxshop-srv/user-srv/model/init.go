@@ -12,7 +12,7 @@ var (
 )
 
 func initDB() {
-	mysqlConfig := config.Conf.Db["mysql"]
+	mysqlConfig := config.DefaultConfig().Db["mysql"]
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		mysqlConfig.UserName,

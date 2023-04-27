@@ -9,9 +9,11 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	health_handler "github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/handler"
 	health_pb "github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/proto"
+	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/config"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/handler"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/log"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/proto"
+	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/register/consul"
 	"google.golang.org/grpc"
 	"net"
 	"os"
@@ -22,8 +24,9 @@ import (
 )
 
 func main() {
+	serviceConf := config.DefaultConfig().Service
 	host := flag.String("host", "localhost", "Host address")
-	port := flag.Int("port", 8083, "Port")
+	port := flag.Int("port", serviceConf.Port, "Port")
 	addr := *host + ":" + strconv.Itoa(*port)
 
 	// 中间件注册
@@ -52,8 +55,20 @@ func main() {
 		wg.Done()
 	}()
 
-	// todo 服务注册
+	// 健康检查
 	health_pb.RegisterHealthServer(server, &health_handler.HealthCheckService{})
+
+	// 服务注册
+	consulConf := config.DefaultConfig().Consul
+	consulClient := consul.NewRegistryClient(consulConf.Host, consulConf.Port)
+	err = consulClient.Register(serviceConf.ServiceName,
+		serviceConf.ServiceName,
+		serviceConf.ServiceTags,
+		"host.docker.internal",
+		serviceConf.Port)
+	if err != nil {
+		panic(err)
+	}
 
 	// 启动服务
 	fmt.Printf("Server Running at %s\n", addr)

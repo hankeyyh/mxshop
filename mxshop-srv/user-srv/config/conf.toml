@@ -1,3 +1,8 @@
+[service]
+service_name = "user-srv"
+service_tags = ["srv", "imooc"]
+port = 8083
+
 [db.mysql]
 db_name = "mxshop_user_srv"
 user_name = "root"
@@ -8,3 +13,7 @@ port = 3306
 [log]
 level = "debug"
 file_path = "./storage/service.log"
+
+[consul]
+host = "127.0.0.1"
+port = 8500
