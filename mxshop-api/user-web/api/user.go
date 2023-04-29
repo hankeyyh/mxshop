@@ -10,17 +10,39 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"mxshop-api/user-web/forms"
 	"mxshop-api/user-web/global"
-	"mxshop-api/user-web/global/response"
 	middlewares "mxshop-api/user-web/middleware"
-	"mxshop-api/user-web/model"
 	"mxshop-api/user-web/proto"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
+
+type JsonTime time.Time
+
+func (j JsonTime) MarshalJSON() ([]byte, error) {
+	stamp := fmt.Sprintf("\"%s\"", time.Time(j).Format("2006-03-01"))
+	return []byte(stamp), nil
+}
+
+// PassWordLoginForm 注册请求
+type PassWordLoginForm struct {
+	Mobile    string `form:"mobile" json:"mobile" binding:"required,mobile"` //手机号码格式有规范可寻， 自定义validator
+	PassWord  string `form:"password" json:"password" binding:"required,min=3,max=20"`
+	Captcha   string `form:"captcha" json:"captcha" binding:"required,min=5,max=5"` // 图形验证码
+	CaptchaId string `form:"captcha_id" json:"captcha_id" binding:"required"`
+}
+
+// UserResponse 返回结构
+type UserResponse struct {
+	Id       int32  `json:"id"`
+	NickName string `json:"name"`
+	//Birthday string `json:"birthday"`
+	Birthday JsonTime `json:"birthday"`
+	Gender   string   `json:"gender"`
+	Mobile   string   `json:"mobile"`
+}
 
 // HandleGrpcErrorToHttp 将grpc的code转换成http的状态码
 func HandleGrpcErrorToHttp(err error, c *gin.Context) {
@@ -97,10 +119,10 @@ func GetUserList(ctx *gin.Context) {
 	data := rsp.GetData()
 	result := make([]interface{}, 0, len(data))
 	for _, val := range data {
-		result = append(result, &response.UserResponse{
+		result = append(result, &UserResponse{
 			Id:       val.GetId(),
 			NickName: val.GetNickname(),
-			Birthday: response.JsonTime(time.Unix(int64(val.GetBirthday()), 0)),
+			Birthday: JsonTime(time.Unix(int64(val.GetBirthday()), 0)),
 			Gender:   val.GetGender(),
 			Mobile:   val.GetMobile(),
 		})
@@ -121,7 +143,7 @@ func removeErrPrefix(e map[string]string) map[string]string {
 // PasswordLogin 密码登录
 func PasswordLogin(ctx *gin.Context) {
 	// 表单验证
-	passwordLoginForm := forms.PassWordLoginForm{}
+	passwordLoginForm := PassWordLoginForm{}
 	if err := ctx.ShouldBind(&passwordLoginForm); err != nil {
 		HandleValidatorError(ctx, err)
 		return
@@ -184,7 +206,7 @@ func PasswordLogin(ctx *gin.Context) {
 
 	// 生成token
 	j := middlewares.NewJWT()
-	token, err := j.CreateToken(model.CustomClaims{
+	token, err := j.CreateToken(middlewares.CustomClaims{
 		ID:          uint(user.GetId()),
 		NickName:    user.GetNickname(),
 		AuthorityId: uint(user.GetRole()),

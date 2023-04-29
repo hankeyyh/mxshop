@@ -5,7 +5,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"mxshop-api/user-web/global"
-	"mxshop-api/user-web/model"
 	"net/http"
 	"time"
 )
@@ -62,15 +61,22 @@ func NewJWT() *JWT {
 	}
 }
 
+type CustomClaims struct {
+	ID          uint
+	NickName    string
+	AuthorityId uint
+	jwt.StandardClaims
+}
+
 // CreateToken 创建一个token
-func (j *JWT) CreateToken(claims model.CustomClaims) (string, error) {
+func (j *JWT) CreateToken(claims CustomClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(j.SigningKey)
 }
 
 // ParseToken 解析 token
-func (j *JWT) ParseToken(tokenString string) (*model.CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &model.CustomClaims{}, func(token *jwt.Token) (i interface{}, e error) {
+func (j *JWT) ParseToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (i interface{}, e error) {
 		return j.SigningKey, nil
 	})
 	if err != nil {
@@ -88,7 +94,7 @@ func (j *JWT) ParseToken(tokenString string) (*model.CustomClaims, error) {
 		}
 	}
 	if token != nil {
-		if claims, ok := token.Claims.(*model.CustomClaims); ok && token.Valid {
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 			return claims, nil
 		}
 		return nil, TokenInvalid
@@ -105,13 +111,13 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 	jwt.TimeFunc = func() time.Time {
 		return time.Unix(0, 0)
 	}
-	token, err := jwt.ParseWithClaims(tokenString, &model.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return j.SigningKey, nil
 	})
 	if err != nil {
 		return "", err
 	}
-	if claims, ok := token.Claims.(*model.CustomClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		jwt.TimeFunc = time.Now
 		claims.StandardClaims.ExpiresAt = time.Now().Add(1 * time.Hour).Unix()
 		return j.CreateToken(*claims)

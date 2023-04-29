@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func InitTrans(locale string) (err error) {
+func InitTranslate(locale string) (err error) {
 	v, ok := binding.Validator.Engine().(*validator.Validate)
 
 	// 注册一个json tag的自定义方法

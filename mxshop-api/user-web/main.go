@@ -28,7 +28,7 @@ func main() {
 	engine := initialize.InitRouter()
 
 	// 初始化翻译
-	if err := initialize.InitTrans("zh"); err != nil {
+	if err := initialize.InitTranslate("zh"); err != nil {
 		panic(err)
 	}
 
@@ -50,6 +50,11 @@ func main() {
 	}
 
 	//服务注册
+	//registry := consul.NewRegistryClient()
+	//serviceId := fmt.Sprintf("%s", uuid.NewV4())
+	//if err := registry.Register(); err != nil {
+	//	zap.S().Panic("服务注册失败", err.Error())
+	//}
 
 	//接收终止信号
 }
