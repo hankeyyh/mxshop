@@ -1,12 +1,18 @@
-package initialize
+package log
 
 import (
 	"go.uber.org/zap"
-	"mxshop-api/user-web/global"
+	"mxshop-api/user-web/config"
 )
 
-func InitLogger() {
-	logCong := global.ServerConfig.Log
+var defaultLogger *zap.Logger
+
+func DefaultLogger() *zap.Logger {
+	return defaultLogger
+}
+
+func Init() {
+	logCong := config.DefaultConfig().Log
 	var logConfig zap.Config
 	if logCong.Level == "debug" {
 		logConfig = zap.NewDevelopmentConfig()
@@ -17,10 +23,10 @@ func InitLogger() {
 		"stderr",
 		logCong.FilePath,
 	}
-	logger, err := logConfig.Build()
+	var err error
+	defaultLogger, err = logConfig.Build()
 	if err != nil {
 		panic(err)
 	}
-	zap.ReplaceGlobals(logger)
-	zap.S().Info("InitLogger Suc")
+	zap.ReplaceGlobals(defaultLogger)
 }

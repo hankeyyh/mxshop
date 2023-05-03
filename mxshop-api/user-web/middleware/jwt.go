@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"mxshop-api/user-web/global"
+	"mxshop-api/user-web/config"
 	"net/http"
 	"time"
 )
@@ -57,7 +57,7 @@ var (
 
 func NewJWT() *JWT {
 	return &JWT{
-		[]byte(global.ServerConfig.JWTInfo.SigningKey), //可以设置过期时间
+		[]byte(config.DefaultConfig().JWTInfo.SigningKey), //可以设置过期时间
 	}
 }
 

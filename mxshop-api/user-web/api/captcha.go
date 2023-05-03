@@ -3,20 +3,20 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
-	"go.uber.org/zap"
+	"mxshop-api/user-web/log"
 	"net/http"
 )
 
-var store = base64Captcha.DefaultMemStore
+var captchaStore = base64Captcha.DefaultMemStore
 
 // GetCaptcha 获取图形验证码
 func GetCaptcha(ctx *gin.Context) {
 	// 生成图形验证码
 	var driver = base64Captcha.NewDriverDigit(80, 240, 5, 0.7, 80)
-	captcha := base64Captcha.NewCaptcha(driver, store)
+	captcha := base64Captcha.NewCaptcha(driver, captchaStore)
 	id, b64s, err := captcha.Generate()
 	if err != nil {
-		zap.S().Error("生成验证码错误,: ", err.Error())
+		log.Error(ctx, "生成验证码错误,: ", log.Any("err", err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "验证码生成失败",
 		})

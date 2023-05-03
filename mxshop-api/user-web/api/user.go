@@ -6,13 +6,14 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"mxshop-api/user-web/global"
+	"mxshop-api/user-web/config"
+	"mxshop-api/user-web/log"
 	middlewares "mxshop-api/user-web/middleware"
 	"mxshop-api/user-web/proto"
+	"mxshop-api/user-web/validators"
 	"net/http"
 	"strconv"
 	"strings"
@@ -84,21 +85,21 @@ func HandleValidatorError(ctx *gin.Context, err error) {
 		})
 	}
 	ctx.JSON(http.StatusBadRequest, gin.H{
-		"error": removeErrPrefix(errs.Translate(global.Trans)),
+		"error": removeErrPrefix(errs.Translate(validators.DefaultTranslator())),
 	})
 	return
 }
 
 func GetUserList(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
-	zap.S().Info("访问用户: ", userId)
+	log.Info(ctx, "访问用户: ", log.Any("userId", userId))
 
-	userSrvConf := global.ServerConfig.UserSrvInfo
+	userSrvConf := config.DefaultConfig().UserSrvInfo
 	addr := fmt.Sprintf("%s:%d", userSrvConf.Host, userSrvConf.Port)
 
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		zap.S().Panic("grpc.Dial fail, err: ", err.Error())
+		log.Panic(context.Background(), "grpc.Dial fail", log.Any("err", err))
 	}
 	client := proto.NewUserClient(conn)
 
@@ -112,7 +113,7 @@ func GetUserList(ctx *gin.Context) {
 		PSize: uint32(pSizeInt),
 	})
 	if err != nil {
-		zap.S().Error("GetUserList fail, err: ", err.Error())
+		log.Error(ctx, "GetUserList fail", log.Any("err", err))
 		HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
@@ -150,7 +151,7 @@ func PasswordLogin(ctx *gin.Context) {
 	}
 
 	// 图形验证码验证
-	if !store.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, false) {
+	if !captchaStore.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, false) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"captcha": "验证码错误",
 		})
@@ -158,12 +159,12 @@ func PasswordLogin(ctx *gin.Context) {
 	}
 
 	// 根据mobile查询用户
-	userSrvConf := global.ServerConfig.UserSrvInfo
+	userSrvConf := config.DefaultConfig().UserSrvInfo
 	addr := fmt.Sprintf("%s:%d", userSrvConf.Host, userSrvConf.Port)
 
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		zap.S().Panic("grpc.Dial fail, err: ", err.Error())
+		log.Panic(ctx, "grpc.Dial fail", log.Any("err", err))
 	}
 	client := proto.NewUserClient(conn)
 
