@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"mxshop-api/user-web/client"
 	"mxshop-api/user-web/config"
 	"mxshop-api/user-web/log"
 	"mxshop-api/user-web/router"
@@ -29,6 +30,11 @@ func main() {
 
 	// 初始化 validator
 	if err := validators.Init("zh"); err != nil {
+		panic(err)
+	}
+
+	// 初始化user-srv-client连接
+	if err := client.Init(); err != nil {
 		panic(err)
 	}
 

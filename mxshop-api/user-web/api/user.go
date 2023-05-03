@@ -3,15 +3,12 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"mxshop-api/user-web/config"
+	"mxshop-api/user-web/client"
 	"mxshop-api/user-web/log"
-	middlewares "mxshop-api/user-web/middleware"
 	"mxshop-api/user-web/proto"
 	"mxshop-api/user-web/validators"
 	"net/http"
@@ -37,9 +34,8 @@ type PassWordLoginForm struct {
 
 // UserResponse 返回结构
 type UserResponse struct {
-	Id       int32  `json:"id"`
-	NickName string `json:"name"`
-	//Birthday string `json:"birthday"`
+	Id       int32    `json:"id"`
+	NickName string   `json:"name"`
 	Birthday JsonTime `json:"birthday"`
 	Gender   string   `json:"gender"`
 	Mobile   string   `json:"mobile"`
@@ -90,25 +86,27 @@ func HandleValidatorError(ctx *gin.Context, err error) {
 	return
 }
 
+func removeErrPrefix(e map[string]string) map[string]string {
+	var res = make(map[string]string)
+	for key, val := range e {
+		//key = strings.SplitN(key, ".", 2)[1]
+		key = key[strings.Index(key, ".")+1:]
+		res[key] = val
+	}
+	return res
+}
+
 func GetUserList(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
 	log.Info(ctx, "访问用户: ", log.Any("userId", userId))
-
-	userSrvConf := config.DefaultConfig().UserSrvInfo
-	addr := fmt.Sprintf("%s:%d", userSrvConf.Host, userSrvConf.Port)
-
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
-	if err != nil {
-		log.Panic(context.Background(), "grpc.Dial fail", log.Any("err", err))
-	}
-	client := proto.NewUserClient(conn)
 
 	pn := ctx.DefaultQuery("pn", "1")
 	pnInt, _ := strconv.Atoi(pn)
 	pSize := ctx.DefaultQuery("psize", "10")
 	pSizeInt, _ := strconv.Atoi(pSize)
 
-	rsp, err := client.GetUserList(context.Background(), &proto.PageInfo{
+	userSvrClient := client.UserSvrClient
+	rsp, err := userSvrClient.GetUserList(context.Background(), &proto.PageInfo{
 		Pn:    uint32(pnInt),
 		PSize: uint32(pSizeInt),
 	})
@@ -129,104 +127,4 @@ func GetUserList(ctx *gin.Context) {
 		})
 	}
 	ctx.JSON(http.StatusOK, result)
-}
-
-func removeErrPrefix(e map[string]string) map[string]string {
-	var res = make(map[string]string)
-	for key, val := range e {
-		//key = strings.SplitN(key, ".", 2)[1]
-		key = key[strings.Index(key, ".")+1:]
-		res[key] = val
-	}
-	return res
-}
-
-// PasswordLogin 密码登录
-func PasswordLogin(ctx *gin.Context) {
-	// 表单验证
-	passwordLoginForm := PassWordLoginForm{}
-	if err := ctx.ShouldBind(&passwordLoginForm); err != nil {
-		HandleValidatorError(ctx, err)
-		return
-	}
-
-	// 图形验证码验证
-	if !captchaStore.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, false) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"captcha": "验证码错误",
-		})
-		return
-	}
-
-	// 根据mobile查询用户
-	userSrvConf := config.DefaultConfig().UserSrvInfo
-	addr := fmt.Sprintf("%s:%d", userSrvConf.Host, userSrvConf.Port)
-
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
-	if err != nil {
-		log.Panic(ctx, "grpc.Dial fail", log.Any("err", err))
-	}
-	client := proto.NewUserClient(conn)
-
-	// 获取用户
-	user, err := client.GetUserByMobile(context.Background(), &proto.MobileRequest{
-		Mobile: passwordLoginForm.Mobile})
-	if err != nil {
-		if e, ok := status.FromError(err); ok {
-			switch e.Code() {
-			case codes.NotFound:
-				ctx.JSON(http.StatusBadRequest, map[string]string{
-					"mobile": "用户不存在",
-				})
-			default:
-				ctx.JSON(http.StatusInternalServerError, map[string]string{
-					"mobile": "服务异常，登录失败",
-				})
-			}
-		}
-		return
-	}
-
-	// 校验密码
-	rsp, err := client.CheckPassWord(context.Background(), &proto.PasswordCheckInfo{
-		Password:          passwordLoginForm.PassWord,
-		EncryptedPassword: user.GetPassword(),
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"password": "服务异常，登录失败",
-		})
-		return
-	}
-	if !rsp.GetSuccess() {
-		ctx.JSON(http.StatusBadRequest, map[string]string{
-			"msg": "密码错误",
-		})
-		return
-	}
-
-	// 生成token
-	j := middlewares.NewJWT()
-	token, err := j.CreateToken(middlewares.CustomClaims{
-		ID:          uint(user.GetId()),
-		NickName:    user.GetNickname(),
-		AuthorityId: uint(user.GetRole()),
-		StandardClaims: jwt.StandardClaims{
-			NotBefore: time.Now().Unix(),
-			ExpiresAt: time.Now().Unix() + (24 * 3600 * 30), //30天过期
-			Issuer:    "mxshop",
-		},
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"msg": "生成token失败",
-		})
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"id":         user.GetId(),
-		"nick_name":  user.GetNickname(),
-		"token":      token,
-		"expired_at": (time.Now().Unix() + 3600*24*30) * 1000,
-	})
 }
