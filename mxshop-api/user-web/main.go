@@ -6,6 +6,7 @@ import (
 	"mxshop-api/user-web/client"
 	"mxshop-api/user-web/config"
 	"mxshop-api/user-web/log"
+	"mxshop-api/user-web/register"
 	"mxshop-api/user-web/router"
 	"mxshop-api/user-web/validators"
 	"strconv"
@@ -38,18 +39,16 @@ func main() {
 		panic(err)
 	}
 
-	//初始化srv的连接
+	//服务注册
+	if err := register.InitConsulRegister(); err != nil {
+		panic(err)
+	}
+
+	//run!!
 	log.Info(context.Background(), "服务启动 %s", log.Any("addr", addr))
 	if err := engine.Run(addr); err != nil {
 		log.Panic(context.Background(), "服务启动失败", log.Any("err", err))
 	}
-
-	//服务注册
-	//registry := consul.NewRegistryClient()
-	//serviceId := fmt.Sprintf("%s", uuid.NewV4())
-	//if err := registry.Register(); err != nil {
-	//	log.Panic(context.Background(), "服务注册失败", log.Any("err", err))
-	//}
 
 	//接收终止信号
 }

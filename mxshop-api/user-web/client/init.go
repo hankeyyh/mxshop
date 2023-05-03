@@ -22,7 +22,7 @@ func Init() error {
 }
 
 func InitUserSrvClient() error {
-	conf := config.DefaultConfig().UserSrvInfo
+	conf := config.DefaultConfig().Client.UserSrv
 	addr := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
