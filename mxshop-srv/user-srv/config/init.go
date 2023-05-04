@@ -25,6 +25,7 @@ type consulConfig struct {
 type serviceConfig struct {
 	ServiceName string   `toml:"service_name"`
 	ServiceTags []string `toml:"service_tags"`
+	Host        string   `toml:"host"`
 	Port        int      `toml:"port"`
 }
 

@@ -1,6 +1,7 @@
 [service]
 service_name = "user-srv"
 service_tags = ["srv", "imooc"]
+host = "192.168.1.10"
 port = 8083
 
 [db.mysql]

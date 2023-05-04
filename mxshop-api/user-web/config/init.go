@@ -12,6 +12,7 @@ type Client struct {
 type UserSrvConfig struct {
 	Host string `mapstructure:"host" json:"host"`
 	Port int    `mapstructure:"port" json:"port"`
+	Name string `mapstructure:"name"`
 }
 
 type LogConfig struct {
@@ -37,6 +38,7 @@ type RedisConfig struct {
 type ServiceConfig struct {
 	ServiceName string   `mapstructure:"service_name"`
 	ServiceTags []string `mapstructure:"service_tags"`
+	Host        string   `mapstructure:"host"`
 	Port        int      `mapstructure:"port"`
 }
 
@@ -84,4 +86,10 @@ func Init() error {
 func GetEnvInfo(env string) bool {
 	viper.AutomaticEnv()
 	return viper.GetBool(env)
+}
+
+func init() {
+	if err := Init(); err != nil {
+		panic(err)
+	}
 }

@@ -13,24 +13,12 @@ type ConsulClient struct {
 	Port int
 }
 
-func InitConsulRegister() error {
+func InitConsulRegister() {
 	conf := config.DefaultConfig().Consul
-	serviceConf := config.DefaultConfig().Service
-	registry := ConsulClient{
+	registry = ConsulClient{
 		Host: conf.Host,
 		Port: conf.Port,
 	}
-	err := registry.Register(serviceConf.ServiceName,
-		serviceConf.ServiceName,
-		serviceConf.ServiceTags,
-		"host.docker.internal", // todo 如何放入配置
-		serviceConf.Port,
-	)
-	if err != nil {
-		log.Error(context.Background(), "consul.registry fail", log.Any("err", err))
-		return err
-	}
-	return nil
 }
 
 func (r ConsulClient) Register(serviceName string, serviceId string, tags []string, address string, port int, options ...map[string]interface{}) error {
@@ -68,4 +56,25 @@ func (r ConsulClient) Deregister(serviceId string) error {
 	}
 	err = client.Agent().ServiceDeregister(serviceId)
 	return err
+}
+
+func (r ConsulClient) GetServiceAddr(serviceName string) (string, error) {
+	consulConfig := api.DefaultConfig()
+	consulConfig.Address = fmt.Sprintf("%s:%d", r.Host, r.Port)
+
+	client, err := api.NewClient(consulConfig)
+	if err != nil {
+		log.Error(context.Background(), "consul NewClient fail", log.Any("err", err))
+		return "", err
+	}
+	servMap, err := client.Agent().ServicesWithFilter(fmt.Sprintf("Service == \"%s\"", serviceName))
+	if err != nil {
+		log.Error(context.Background(), "consul ServicesWithFilter fail", log.Any("err", err))
+		return "", err
+	}
+	var addr string
+	for _, v := range servMap {
+		addr = fmt.Sprintf("%s:%d", v.Address, v.Port)
+	}
+	return addr, nil
 }

@@ -1,6 +1,7 @@
 [service]
 service_name = "user-web"
 service_tags = ["web", "imooc"]
+host = "192.168.1.10"
 port = 8021
 
 [client.user-srv]

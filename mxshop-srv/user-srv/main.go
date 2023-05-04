@@ -25,9 +25,9 @@ import (
 
 func main() {
 	serviceConf := config.DefaultConfig().Service
-	host := flag.String("host", "localhost", "Host address")
-	port := flag.Int("port", serviceConf.Port, "Port")
-	addr := *host + ":" + strconv.Itoa(*port)
+	host := *flag.String("host", serviceConf.Host, "Host address")
+	port := *flag.Int("port", serviceConf.Port, "Port")
+	addr := host + ":" + strconv.Itoa(port)
 
 	// 中间件注册
 	opt := grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
@@ -64,8 +64,8 @@ func main() {
 	err = consulClient.Register(serviceConf.ServiceName,
 		serviceConf.ServiceName,
 		serviceConf.ServiceTags,
-		"host.docker.internal", // todo 如何放入配置
-		serviceConf.Port)
+		host,
+		port)
 	if err != nil {
 		panic(err)
 	}
