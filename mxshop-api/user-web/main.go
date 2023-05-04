@@ -18,7 +18,6 @@ func main() {
 		// 正式环境随机端口号，支持启动多个实例
 		port, err := util.GetFreePort()
 		if err != nil {
-			log.Error(context.Background(), "util.GetFreePort fail", log.Any("err", err))
 			panic(err)
 		}
 		config.DefaultConfig.Service.Port = port
