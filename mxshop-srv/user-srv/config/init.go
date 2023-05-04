@@ -1,56 +1,76 @@
 package config
 
 import (
-	"github.com/BurntSushi/toml"
+	"fmt"
+	"github.com/spf13/viper"
 )
 
 type dbConfig struct {
-	DBName   string `toml:"db_name"`
-	UserName string `toml:"user_name"`
-	Password string `toml:"password"`
-	Host     string `toml:"host"`
-	Port     int    `toml:"port"`
+	Mysql db `mapstructure:"mysql"`
+}
+
+type db struct {
+	DBName   string `mapstructure:"db_name"`
+	UserName string `mapstructure:"user_name"`
+	Password string `mapstructure:"password"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
 }
 
 type logConfig struct {
-	Level    string `toml:"level"`
-	FilePath string `toml:"file_path"`
+	Level    string `mapstructure:"level"`
+	FilePath string `mapstructure:"file_path"`
 }
 
 type consulConfig struct {
-	Host string `toml:"host"`
-	Port int    `toml:"port"`
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }
 
 type serviceConfig struct {
-	ServiceName string   `toml:"service_name"`
-	ServiceTags []string `toml:"service_tags"`
-	Host        string   `toml:"host"`
-	Port        int      `toml:"port"`
+	ServiceName string   `mapstructure:"service_name"`
+	ServiceTags []string `mapstructure:"service_tags"`
+	Host        string   `mapstructure:"host"`
+	Port        int      `mapstructure:"port"`
 }
 
 type Config struct {
-	Db      map[string]dbConfig `toml:"db"`
-	Log     logConfig           `toml:"log"`
-	Consul  consulConfig        `toml:"consul"`
-	Service serviceConfig       `toml:"service"`
+	Db      dbConfig      `mapstructure:"db"`
+	Log     logConfig     `mapstructure:"log"`
+	Consul  consulConfig  `mapstructure:"consul"`
+	Service serviceConfig `mapstructure:"service"`
 }
 
 var (
-	conf Config
+	DefaultConfig Config
 )
 
-func initConfig() {
-	_, err := toml.DecodeFile("config/conf.toml", &conf)
-	if err != nil {
-		panic(err)
+func initConfig() error {
+	debug := GetEnvInfo("MXSHOP_DEBUG")
+	configPrefix := "config"
+	configFileName := fmt.Sprintf("user-srv/%s-pro.toml", configPrefix)
+	if debug {
+		configFileName = fmt.Sprintf("user-srv/%s-debug.toml", configPrefix)
 	}
+
+	v := viper.New()
+	v.SetConfigFile(configFileName)
+	if err := v.ReadInConfig(); err != nil {
+		return err
+	}
+	if err := v.Unmarshal(&DefaultConfig); err != nil {
+		return err
+	}
+	return nil
 }
 
-func DefaultConfig() Config {
-	return conf
+func GetEnvInfo(env string) bool {
+	viper.AutomaticEnv()
+	return viper.GetBool(env)
 }
 
 func init() {
-	initConfig()
+	if err := initConfig(); err != nil {
+		panic(err)
+	}
 }

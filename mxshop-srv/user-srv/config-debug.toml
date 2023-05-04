@@ -13,7 +13,7 @@ port = 3306
 
 [log]
 level = "debug"
-file_path = "./storage/service.log"
+file_path = "user-srv/storage/service.log"
 
 [consul]
 host = "127.0.0.1"

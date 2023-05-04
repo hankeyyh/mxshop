@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	serviceConf := config.DefaultConfig().Service
+	serviceConf := config.DefaultConfig.Service
 	host := *flag.String("host", serviceConf.Host, "Host address")
 	port := *flag.Int("port", serviceConf.Port, "Port")
 	addr := host + ":" + strconv.Itoa(port)
@@ -59,7 +59,7 @@ func main() {
 	health_pb.RegisterHealthServer(server, &health_handler.HealthCheckService{})
 
 	// 服务注册
-	consulConf := config.DefaultConfig().Consul
+	consulConf := config.DefaultConfig.Consul
 	consulClient := consul.NewRegistryClient(consulConf.Host, consulConf.Port)
 	err = consulClient.Register(serviceConf.ServiceName,
 		serviceConf.ServiceName,

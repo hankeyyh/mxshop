@@ -12,7 +12,7 @@ func DefaultLogger() *zap.Logger {
 }
 
 func InitDefaultLogger() {
-	logConfig := config.DefaultConfig().Log
+	logConfig := config.DefaultConfig.Log
 	var err error
 	var defaultConf zap.Config
 	if logConfig.Level == "debug" {
