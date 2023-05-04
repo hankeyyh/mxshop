@@ -10,6 +10,7 @@ import (
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/register"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/router"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/validators"
+	"github.com/hashicorp/go-uuid"
 	"strconv"
 )
 
@@ -48,8 +49,12 @@ func main() {
 	}
 
 	// 服务注册
-	err := register.DefaultRegistry().Register(serviceConf.ServiceName,
-		serviceConf.ServiceName,
+	serviceId, err := uuid.GenerateUUID()
+	if err != nil {
+		panic(err)
+	}
+	err = register.DefaultRegistry().Register(serviceConf.ServiceName,
+		serviceId,
 		serviceConf.ServiceTags,
 		host,
 		port,
