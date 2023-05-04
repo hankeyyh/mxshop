@@ -1,8 +1,7 @@
-package main
+package util
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -35,8 +34,4 @@ func GetFreeIp() (string, error) {
 		}
 	}
 	return "", errors.New("free ip not found")
-}
-
-func main() {
-	fmt.Println(GetFreeIp())
 }

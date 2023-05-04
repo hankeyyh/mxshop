@@ -22,7 +22,7 @@ func Init() error {
 }
 
 func InitUserSrvClient() error {
-	conf := config.DefaultConfig().Client.UserSrv
+	conf := config.DefaultConfig.Client.UserSrv
 	registry := register.DefaultRegistry()
 	// 服务发现
 	// todo consul记录的user-srv地址是host.docker.internal 在宿主机上访问不了

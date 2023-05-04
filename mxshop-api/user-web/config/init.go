@@ -57,11 +57,7 @@ type ServerConfig struct {
 	Consul     ConsulConfig  `mapstructure:"consul"`
 }
 
-var defaultConfig ServerConfig
-
-func DefaultConfig() ServerConfig {
-	return defaultConfig
-}
+var DefaultConfig ServerConfig
 
 func Init() error {
 	debug := GetEnvInfo("MXSHOP_DEBUG")
@@ -77,7 +73,7 @@ func Init() error {
 		return err
 	}
 
-	if err := v.Unmarshal(&defaultConfig); err != nil {
+	if err := v.Unmarshal(&DefaultConfig); err != nil {
 		return err
 	}
 	return nil
@@ -86,6 +82,11 @@ func Init() error {
 func GetEnvInfo(env string) bool {
 	viper.AutomaticEnv()
 	return viper.GetBool(env)
+}
+
+// 是否测试环境
+func IsDebug() bool {
+	return GetEnvInfo("MXSHOP_DEBUG")
 }
 
 func init() {

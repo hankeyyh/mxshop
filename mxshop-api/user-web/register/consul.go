@@ -14,7 +14,7 @@ type ConsulClient struct {
 }
 
 func InitConsulRegister() {
-	conf := config.DefaultConfig().Consul
+	conf := config.DefaultConfig.Consul
 	registry = ConsulClient{
 		Host: conf.Host,
 		Port: conf.Port,

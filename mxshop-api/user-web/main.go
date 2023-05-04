@@ -8,12 +8,22 @@ import (
 	"mxshop-api/user-web/log"
 	"mxshop-api/user-web/register"
 	"mxshop-api/user-web/router"
+	"mxshop-api/user-web/util"
 	"mxshop-api/user-web/validators"
 	"strconv"
 )
 
 func main() {
-	serviceConf := config.DefaultConfig().Service
+	if !config.IsDebug() {
+		// 正式环境随机端口号，支持启动多个实例
+		port, err := util.GetFreePort()
+		if err != nil {
+			log.Error(context.Background(), "util.GetFreePort fail", log.Any("err", err))
+			panic(err)
+		}
+		config.DefaultConfig.Service.Port = port
+	}
+	serviceConf := config.DefaultConfig.Service
 	host := *flag.String("host", serviceConf.Host, "Host address")
 	port := *flag.Int("port", serviceConf.Port, "Port")
 	flag.Parse()
