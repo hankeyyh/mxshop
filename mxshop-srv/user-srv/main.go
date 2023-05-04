@@ -15,6 +15,7 @@ import (
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/log"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/proto"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/register/consul"
+	"github.com/hashicorp/go-uuid"
 	"google.golang.org/grpc"
 	"net"
 	"os"
@@ -70,9 +71,13 @@ func main() {
 
 	// 服务注册
 	consulConf := config.DefaultConfig.Consul
+	serviceId, err := uuid.GenerateUUID()
+	if err != nil {
+		panic(err)
+	}
 	consulClient := consul.NewRegistryClient(consulConf.Host, consulConf.Port)
 	err = consulClient.Register(serviceConf.ServiceName,
-		serviceConf.ServiceName,
+		serviceId,
 		serviceConf.ServiceTags,
 		host,
 		port)
