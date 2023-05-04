@@ -1,4 +1,4 @@
-module mxshop-api
+module github.com/hankeyyh/mxshop/mxshop-api/user-web
 
 go 1.19
 
