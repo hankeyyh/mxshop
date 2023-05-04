@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"mxshop-api/user-web/api"
-	middlewares "mxshop-api/user-web/middleware"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/api"
+	middlewares "github.com/hankeyyh/mxshop/mxshop-api/user-web/middleware"
 	"net/http"
 )
 

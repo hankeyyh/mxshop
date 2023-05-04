@@ -3,9 +3,9 @@ package register
 import (
 	"context"
 	"fmt"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/config"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
 	"github.com/hashicorp/consul/api"
-	"mxshop-api/user-web/config"
-	"mxshop-api/user-web/log"
 )
 
 type ConsulClient struct {

@@ -1,8 +1,8 @@
 package log
 
 import (
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/config"
 	"go.uber.org/zap"
-	"mxshop-api/user-web/config"
 )
 
 var defaultLogger *zap.Logger

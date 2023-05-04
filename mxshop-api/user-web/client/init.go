@@ -2,12 +2,12 @@ package client
 
 import (
 	"context"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/config"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/proto"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/register"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"mxshop-api/user-web/config"
-	"mxshop-api/user-web/log"
-	"mxshop-api/user-web/proto"
-	"mxshop-api/user-web/register"
 )
 
 var (

@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"flag"
-	"mxshop-api/user-web/client"
-	"mxshop-api/user-web/config"
-	"mxshop-api/user-web/log"
-	"mxshop-api/user-web/register"
-	"mxshop-api/user-web/router"
-	"mxshop-api/user-web/util"
-	"mxshop-api/user-web/validators"
+	"github.com/hankeyyh/mxshop/mxshop-api/common/util"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/client"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/config"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/register"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/router"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/validators"
 	"strconv"
 )
 
