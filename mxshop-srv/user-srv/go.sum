@@ -161,6 +161,8 @@ github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5m
 github.com/googleapis/google-cloud-go-testing v0.0.0-20200911160855-bcd43fbb19e8/go.mod h1:dvDLG8qkwmyD9a/MJJN3XJcT3xFxOKAvTZGvuZmac9g=
 github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 h1:UH//fgunKIs4JdUbpDl1VZCDaL56wXCB/5+wF6uHfaI=
 github.com/grpc-ecosystem/go-grpc-middleware v1.4.0/go.mod h1:g5qyo/la0ALbONm6Vbp88Yd8NsDy6rZz+RcrMPxvld8=
+github.com/hankeyyh/mxshop/mxshop-srv/common v0.0.0-20230504052727-da80c36f927b h1:pAOWCs/IqYtXeRY9q6VPb9au35NVFnkUpVURv+7Q3Jg=
+github.com/hankeyyh/mxshop/mxshop-srv/common v0.0.0-20230504052727-da80c36f927b/go.mod h1:O52sZ/1BPBqAPhsSJw/aNdAWQ6+1a8ANvyuJoPJBPg0=
 github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health v0.0.0-20230420151012-7e387796dc56 h1:aNv34oN3JWu05tGaQjyBLUdIjpqjN32fvWr7qZYMUwk=
 github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health v0.0.0-20230420151012-7e387796dc56/go.mod h1:w1Kj/Lf/v+/ykyCVLMPbh7K0pW7QDMx6+5h1egxit9w=
 github.com/hashicorp/consul/api v1.20.0 h1:9IHTjNVSZ7MIwjlW3N3a7iGiykCMDpxZu8jsxFJh0yc=

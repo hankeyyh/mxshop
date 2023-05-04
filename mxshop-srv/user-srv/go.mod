@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health v0.0.0-20230420151012-7e387796dc56
 	github.com/hashicorp/consul/api v1.20.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.7.0
@@ -21,6 +20,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/hankeyyh/mxshop/mxshop-srv/common v0.0.0-20230504052727-da80c36f927b // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect

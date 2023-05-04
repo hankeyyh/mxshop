@@ -9,6 +9,7 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	health_handler "github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/handler"
 	health_pb "github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health/v1/proto"
+	"github.com/hankeyyh/mxshop/mxshop-srv/common/util"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/config"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/handler"
 	"github.com/hankeyyh/mxshop/mxshop-srv/user-srv/log"
@@ -24,9 +25,18 @@ import (
 )
 
 func main() {
+	if !config.IsDebug() {
+		// 正式环境随机端口号，支持启动多个实例
+		port, err := util.GetFreePort()
+		if err != nil {
+			panic(err)
+		}
+		config.DefaultConfig.Service.Port = port
+	}
 	serviceConf := config.DefaultConfig.Service
 	host := *flag.String("host", serviceConf.Host, "Host address")
 	port := *flag.Int("port", serviceConf.Port, "Port")
+	flag.Parse()
 	addr := host + ":" + strconv.Itoa(port)
 
 	// 中间件注册

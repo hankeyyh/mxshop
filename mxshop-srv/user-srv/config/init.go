@@ -69,6 +69,11 @@ func GetEnvInfo(env string) bool {
 	return viper.GetBool(env)
 }
 
+// 是否测试环境
+func IsDebug() bool {
+	return GetEnvInfo("MXSHOP_DEBUG")
+}
+
 func init() {
 	if err := initConfig(); err != nil {
 		panic(err)
