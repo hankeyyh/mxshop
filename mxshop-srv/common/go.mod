@@ -1,4 +1,4 @@
-module github.com/hankeyyh/mxshop/mxshop-srv/common/grpc-health
+module github.com/hankeyyh/mxshop/mxshop-srv/common
 
 go 1.19
 
