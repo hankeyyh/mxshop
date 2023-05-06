@@ -1,7 +1,7 @@
 [service]
 service_name = "user-web"
 service_tags = ["web", "imooc"]
-host = "192.168.1.10"
+host = "192.168.3.56"
 port = 8021
 
 [client.user-srv]
@@ -11,7 +11,7 @@ name = "user-srv"
 
 [log]
 level = "debug"
-file_path = "user-web/storage/service.log"
+file_path = "storage/service.log"
 
 [jwt]
 key = "5WVdD8p2n^aK4MQv"

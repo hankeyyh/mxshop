@@ -48,9 +48,9 @@ var (
 func initConfig() error {
 	debug := GetEnvInfo("MXSHOP_DEBUG")
 	configPrefix := "config"
-	configFileName := fmt.Sprintf("user-srv/%s-pro.toml", configPrefix)
+	configFileName := fmt.Sprintf("%s-pro.toml", configPrefix)
 	if debug {
-		configFileName = fmt.Sprintf("user-srv/%s-debug.toml", configPrefix)
+		configFileName = fmt.Sprintf("%s-debug.toml", configPrefix)
 	}
 
 	v := viper.New()

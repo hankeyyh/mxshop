@@ -62,9 +62,9 @@ var DefaultConfig ServerConfig
 func Init() error {
 	debug := GetEnvInfo("MXSHOP_DEBUG")
 	configPrefix := "config"
-	configFileName := fmt.Sprintf("user-web/%s-pro.toml", configPrefix)
+	configFileName := fmt.Sprintf("%s-pro.toml", configPrefix)
 	if debug {
-		configFileName = fmt.Sprintf("user-web/%s-debug.toml", configPrefix)
+		configFileName = fmt.Sprintf("%s-debug.toml", configPrefix)
 	}
 
 	v := viper.New()
