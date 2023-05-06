@@ -15,10 +15,6 @@ file_path = "storage/service.log"
 [jwt]
 key = "5WVdD8p2n^aK4MQv"
 
-[sms]
-key = "LTAI5tS48rUWjkPgF1ipmtLh"
-secret = "kqyga30aoxpuKs2FPMJB0nsM15DPX0"
-
 [redis]
 host = "127.0.0.1"
 port = 6379
