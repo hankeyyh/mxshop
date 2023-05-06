@@ -3,7 +3,6 @@ module github.com/hankeyyh/mxshop/mxshop-api
 go 1.19
 
 require (
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.282
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/locales v0.14.1
@@ -13,6 +12,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.2
 	github.com/mbobakov/grpc-consul-resolver v1.5.2
 	github.com/mojocn/base64Captcha v1.3.5
+	github.com/nacos-group/nacos-sdk-go v1.1.4
 	github.com/spf13/viper v1.15.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.54.0
@@ -32,6 +32,7 @@ require (
 	github.com/OpenPeeDeeP/depguard v1.1.1 // indirect
 	github.com/alexkohler/prealloc v1.0.0 // indirect
 	github.com/alingse/asasalint v0.0.11 // indirect
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.282 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/ashanbrown/forbidigo v1.5.1 // indirect
 	github.com/ashanbrown/makezero v1.1.1 // indirect
@@ -41,6 +42,7 @@ require (
 	github.com/bombsimon/wsl/v3 v3.4.0 // indirect
 	github.com/breml/bidichk v0.2.4 // indirect
 	github.com/breml/errchkjson v0.3.1 // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/butuzov/ireturn v0.1.1 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -60,6 +62,7 @@ require (
 	github.com/fzipp/gocyclo v0.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-critic/go-critic v0.7.0 // indirect
+	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-playground/form v3.1.4+incompatible // indirect
 	github.com/go-toolsmith/astcast v1.1.0 // indirect
 	github.com/go-toolsmith/astcopy v1.1.0 // indirect
@@ -73,6 +76,7 @@ require (
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golangci/check v0.0.0-20180506172741-cfe4005ccda2 // indirect
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
@@ -149,7 +153,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.4.0 // indirect
-	github.com/prometheus/client_golang v1.12.1 // indirect
+	github.com/prometheus/client_golang v1.12.2 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
@@ -210,6 +214,7 @@ require (
 	golang.org/x/tools v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.4.3 // indirect
