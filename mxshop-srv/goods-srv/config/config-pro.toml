@@ -1,0 +1,31 @@
+# nacos
+namespace_id = "12e83a18-efe2-4c72-bc45-b549e0caf0ee"
+timeout = 5000
+log_dir = "storage/nacos/log"
+cache_dir = "storage/nacos/cache"
+log_level = "debug"
+ip_addr = "127.0.0.1"
+port = 8848
+data_id = "goods-srv"
+group="pro"
+
+#[service]
+#service_name = "user-srv"
+#service_tags = ["srv", "imooc"]
+#host = "192.168.3.56"
+#port = 8083
+#
+#[db.mysql]
+#db_name = "mxshop_user_srv"
+#user_name = "root"
+#password = ""
+#host = "127.0.0.1"
+#port = 3306
+#
+#[log]
+#level = "debug"
+#file_path = "storage/service.log"
+#
+#[consul]
+#host = "127.0.0.1"
+#port = 8500

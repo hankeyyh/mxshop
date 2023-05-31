@@ -33,7 +33,8 @@ func (r RegistryClient) Register(serviceName string, serviceId string, tags []st
 	registry.Tags = tags
 	registry.Port = port
 	registry.Check = &api.AgentServiceCheck{
-		GRPC:                           fmt.Sprintf("%s:%d", address, port),
+		// grpc默认使用""检查server整体的状态，可以在后面追加具体的serviceName检查特定service的状态
+		GRPC:                           fmt.Sprintf("%s:%d/%s", address, port, serviceName),
 		GRPCUseTLS:                     false,
 		Interval:                       "5s",
 		Timeout:                        "5s",
