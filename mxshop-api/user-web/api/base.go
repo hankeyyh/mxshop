@@ -45,13 +45,13 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
-	// 图形验证码验证
-	if !captchaStore.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, false) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"captcha": "验证码错误",
-		})
-		return
-	}
+	// 图形验证码验证 测试环境暂时注释掉
+	//if !captchaStore.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, false) {
+	//	ctx.JSON(http.StatusBadRequest, gin.H{
+	//		"captcha": "验证码错误",
+	//	})
+	//	return
+	//}
 
 	userSvrClient := client.UserSvrClient
 
