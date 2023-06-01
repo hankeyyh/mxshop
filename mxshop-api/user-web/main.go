@@ -24,10 +24,10 @@ func main() {
 		config.DefaultConfig.Service.Port = port
 	}
 	serviceConf := config.DefaultConfig.Service
-	host := *flag.String("host", serviceConf.Host, "Host address")
-	port := *flag.Int("port", serviceConf.Port, "Port")
+	host := flag.String("host", serviceConf.Host, "Host address")
+	port := flag.Int("port", serviceConf.Port, "Port")
 	flag.Parse()
-	addr := host + ":" + strconv.Itoa(port)
+	addr := *host + ":" + strconv.Itoa(*port)
 
 	//初始化logger
 	log.Init()
@@ -56,8 +56,8 @@ func main() {
 	err = register.DefaultRegistry().Register(serviceConf.ServiceName,
 		serviceId,
 		serviceConf.ServiceTags,
-		host,
-		port,
+		*host,
+		*port,
 	)
 	if err != nil {
 		log.Error(context.Background(), "consul.registry fail", log.Any("err", err))
