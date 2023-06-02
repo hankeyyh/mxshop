@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/handler"
+	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/proto"
 	"google.golang.org/grpc"
 	"net"
 )
@@ -12,6 +14,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	proto.RegisterGoodsServer(server, &handler.GoodsService{})
 
 	if err = server.Serve(listen); err != nil {
 		panic(err)
