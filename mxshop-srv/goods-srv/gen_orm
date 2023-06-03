@@ -1,0 +1,1 @@
+gen --connstr "root:@tcp(127.0.0.1:3306)/mxshop_goods_srv" --database mxshop_goods_srv --generate-dao --grpc=grpc --gorm -t $1 --out . --no-overwrite
