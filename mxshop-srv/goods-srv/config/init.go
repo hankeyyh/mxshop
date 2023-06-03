@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
@@ -76,30 +77,38 @@ func Init() (err error) {
 	}
 
 	// nacos client
-	clientConfig := constant.ClientConfig{
-		NamespaceId: nacosConfig.NamespaceId,
-		TimeoutMs:   nacosConfig.Timeout,
-		LogDir:      nacosConfig.LogDir,
-		CacheDir:    nacosConfig.CacheDir,
-		LogLevel:    nacosConfig.LogLevel,
+	nacosClient, err := newNacosClient(nacosConfig)
+	if err != nil {
+		return err
 	}
-	serverConfig := []constant.ServerConfig{
-		{
-			IpAddr: nacosConfig.IpAddr,
-			Port:   nacosConfig.Port,
-		},
-	}
-	nacosClient, err := clients.NewConfigClient(vo.NacosClientParam{
-		ClientConfig:  &clientConfig,
-		ServerConfigs: serverConfig,
-	})
 	content, err := nacosClient.GetConfig(vo.ConfigParam{
 		DataId: nacosConfig.DataId,
 		Group:  nacosConfig.Group,
 	})
-	err = json.Unmarshal([]byte(content), &DefaultConfig)
 
-	return err
+	return json.Unmarshal([]byte(content), &DefaultConfig)
+}
+
+func newNacosClient(config NacosConfig) (client config_client.IConfigClient, err error) {
+	clientConfig := constant.ClientConfig{
+		NamespaceId:         config.NamespaceId,
+		TimeoutMs:           config.Timeout,
+		LogDir:              config.LogDir,
+		CacheDir:            config.CacheDir,
+		LogLevel:            config.LogLevel,
+		NotLoadCacheAtStart: true,
+	}
+	serverConfig := []constant.ServerConfig{
+		{
+			IpAddr: config.IpAddr,
+			Port:   config.Port,
+		},
+	}
+	client, err = clients.NewConfigClient(vo.NacosClientParam{
+		ClientConfig:  &clientConfig,
+		ServerConfigs: serverConfig,
+	})
+	return
 }
 
 func GetEnv(key string) bool {
