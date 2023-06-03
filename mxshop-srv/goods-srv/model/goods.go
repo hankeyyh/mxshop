@@ -22,9 +22,9 @@ DB Table Details
 
 CREATE TABLE `goods` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `add_time` datetime NOT NULL,
+  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `is_deleted` tinyint(1) DEFAULT NULL,
-  `update_time` datetime NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `category_id` int NOT NULL,
   `brand_id` int NOT NULL,
   `on_sale` tinyint(1) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE `goods` (
 
 JSON Sample
 -------------------------------------
-{    "id": 45,    "add_time": "2106-12-28T15:15:07.578388132+08:00",    "is_deleted": 59,    "update_time": "2171-06-11T17:46:23.562162806+08:00",    "category_id": 41,    "brand_id": 61,    "on_sale": 79,    "goods_sn": "KnonHwDivuZutXtWEhdaSdAdr",    "name": "NUWKpgwNgvntTojRZhMFdhIFE",    "click_num": 11,    "sold_num": 82,    "fav_num": 64,    "stocks": 31,    "market_price": 0.92474705,    "shop_price": 0.8206427,    "goods_brief": "mMMZfwiSrAQsQhfRHooPGXErL",    "ship_free": 51,    "images": "cVvKmOQxlMrhcmqygubWsyPkN",    "desc_images": "KRyafbBJvNAWYKBjmGjbtUwKl",    "goods_front_image": "GoBuefrNVoZGtimNnEbqvaggc",    "is_new": 95,    "is_hot": 80}
+{    "id": 92,    "add_time": "2178-08-10T22:23:44.133045991+08:00",    "is_deleted": 15,    "update_time": "2091-06-06T23:20:51.787692634+08:00",    "category_id": 51,    "brand_id": 23,    "on_sale": 83,    "goods_sn": "uTBuXyRYYtKwpYTCZVZJOYiVW",    "name": "AlsLMiPNCwPTUWOiBieigaZhg",    "click_num": 82,    "sold_num": 30,    "fav_num": 29,    "stocks": 46,    "market_price": 0.18026653,    "shop_price": 0.8860353,    "goods_brief": "BaFwYxOqRJAIYhcmHMQjirREf",    "ship_free": 86,    "images": "cTjYyZTTrZTpIwjhyETeKXvAH",    "desc_images": "gENTSCvshNmMIOHVJQpSvfHOU",    "goods_front_image": "fdWxZuuiiamQfhpSUhEcIuQML",    "is_new": 57,    "is_hot": 24}
 
 
 
@@ -62,12 +62,12 @@ JSON Sample
 type Goods struct {
 	//[ 0] id                                             int                  null: false  primary: true   isArray: false  auto: true   col: int             len: -1      default: []
 	ID int32 `gorm:"primary_key;AUTO_INCREMENT;column:id;type:int;"`
-	//[ 1] add_time                                       datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	AddTime time.Time `gorm:"column:add_time;type:datetime;"`
+	//[ 1] add_time                                       timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	AddTime time.Time `gorm:"column:add_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 	//[ 2] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: []
 	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;"`
-	//[ 3] update_time                                    datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	UpdateTime time.Time `gorm:"column:update_time;type:datetime;"`
+	//[ 3] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	UpdateTime time.Time `gorm:"column:update_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 	//[ 4] category_id                                    int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: []
 	CategoryID int32 `gorm:"column:category_id;type:int;"`
 	//[ 5] brand_id                                       int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: []
@@ -137,18 +137,18 @@ var goodsTableInfo = &TableInfo{
 			Comment:            ``,
 			Notes:              ``,
 			Nullable:           false,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "AddTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "add_time",
 			ProtobufFieldName:  "add_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        2,
 		},
 
@@ -179,18 +179,18 @@ var goodsTableInfo = &TableInfo{
 			Comment:            ``,
 			Notes:              ``,
 			Nullable:           false,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "UpdateTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "update_time",
 			ProtobufFieldName:  "update_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        4,
 		},
 

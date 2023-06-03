@@ -72,7 +72,8 @@ func GetLowestCategoryList(ctx context.Context, topCategoryId int32) (recList []
 	var parentIdList = []int32{topCategoryId}
 	for {
 		var childIdList []int32
-		err = DB.Where("parent_category_id in ? and is_deleted = ?", parentIdList, 0).Pluck("id", &childIdList).Error
+		err = DB.Model(&model.Category{}).Where("parent_category_id in ? and is_deleted = ?", parentIdList, 0).
+			Pluck("id", &childIdList).Error
 		if err != nil {
 			return
 		}
@@ -102,7 +103,7 @@ func GetLowestCategoryList(ctx context.Context, topCategoryId int32) (recList []
 	//	err = ErrWrongLevel
 	//	return
 	//}
-	// 查询三级分类
+	// 查询最下级分类
 	err = DB.Where("id in ? and is_deleted = ?", parentIdList, 0).Find(&recList).Error
 	return
 }
