@@ -1,6 +1,9 @@
 package log
 
-import "go.uber.org/zap"
+import (
+	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/config"
+	"go.uber.org/zap"
+)
 
 var (
 	defaultLogger *zap.Logger
@@ -11,11 +14,25 @@ func DefaultLogger() *zap.Logger {
 }
 
 func Init() error {
-	conf := zap.NewDevelopmentConfig()
+	level := config.DefaultConfig.Log.Level
+	var conf zap.Config
+	if level == "debug" {
+		conf = zap.NewDevelopmentConfig()
+	} else {
+		conf = zap.NewProductionConfig()
+	}
+	conf.OutputPaths = []string{
+		"stderr",
+		config.DefaultConfig.Log.FilePath,
+	}
 	var err error
 	defaultLogger, err = conf.Build()
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func init() {
+	Init()
 }

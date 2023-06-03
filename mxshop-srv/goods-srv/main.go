@@ -56,8 +56,10 @@ func main() {
 	// 退出信号
 	xsignal.WaitShutdown(func(graceful bool) {
 		if graceful {
+			log.Info("server graceful stoping...")
 			server.GracefulStop()
 		} else {
+			log.Info("server stoping...")
 			server.Stop()
 		}
 	})
@@ -68,7 +70,9 @@ func main() {
 		panic(err)
 	}
 
+	log.Info(fmt.Sprintf("server running at %s", addr))
 	if err = server.Serve(listen); err != nil {
 		panic(err)
 	}
+	log.Info("server closed")
 }
