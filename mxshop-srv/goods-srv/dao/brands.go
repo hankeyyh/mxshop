@@ -57,6 +57,11 @@ func GetBrands(ctx context.Context, argID int32) (record *model.Brands, err erro
 	return record, nil
 }
 
+func GetBrandsList(ctx context.Context, idList []int32) (recList []*model.Brands, err error) {
+	err = DB.Where("id in ? and is_deleted = ?", idList, 0).Find(&recList).Error
+	return
+}
+
 // AddBrands is a function to add a single record to brands table in the mxshop_goods_srv database
 // error - ErrInsertFailed, db save call failed
 func AddBrands(ctx context.Context, record *model.Brands) (result *model.Brands, RowsAffected int64, err error) {

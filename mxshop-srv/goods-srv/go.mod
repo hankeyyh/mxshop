@@ -7,7 +7,6 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/hashicorp/go-uuid v1.0.2
-	//github.com/jinzhu/gorm v1.9.16
 	github.com/nacos-group/nacos-sdk-go v1.1.4
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.16.0

@@ -57,6 +57,51 @@ func GetGoods(ctx context.Context, argID int32) (record *model.Goods, err error)
 	return record, nil
 }
 
+type GoodsWhere struct {
+	PriceMin       int32
+	PriceMax       int32
+	IsHot          bool
+	IsNew          bool
+	CategoryIdList []int32
+	Pages          int32
+	PagePerNums    int32
+	KeyWords       string
+	BrandId        int32
+}
+
+// 商品列表
+func GetGoodsList(ctx context.Context, where GoodsWhere) (recList []*model.Goods, cnt int64, err error) {
+	query := DB.Model(&model.Goods{})
+	if where.PriceMin > 0 {
+		query.Where("shop_price >= ?", where.PriceMin)
+	}
+	if where.PriceMax > 0 {
+		query.Where("shop_price <= ?", where.PriceMax)
+	}
+	if where.IsHot {
+		query.Where("is_hot = ?", 1)
+	}
+	if where.IsNew {
+		query.Where("is_new = ?", 1)
+	}
+	if where.KeyWords != "" {
+		query.Where("name like ?", "%"+where.KeyWords+"%")
+	}
+	if where.BrandId != 0 {
+		query.Where("brand_id = ?", where.BrandId)
+	}
+	if len(where.CategoryIdList) > 0 {
+		query.Where("category_id in ?", where.CategoryIdList)
+	}
+	err = query.Count(&cnt).Error
+	if err != nil {
+		return
+	}
+	offset := (where.Pages - 1) * where.PagePerNums
+	err = query.Offset(int(offset)).Limit(int(where.PagePerNums)).Find(&recList).Error
+	return
+}
+
 // AddGoods is a function to add a single record to goods table in the mxshop_goods_srv database
 // error - ErrInsertFailed, db save call failed
 func AddGoods(ctx context.Context, record *model.Goods) (result *model.Goods, RowsAffected int64, err error) {

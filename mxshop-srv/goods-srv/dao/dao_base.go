@@ -52,6 +52,9 @@ var (
 	// ErrBadParams error when bad params passed in
 	ErrBadParams = fmt.Errorf("bad params error")
 
+	// ErrWrongLevel 分类level不正确
+	ErrWrongLevel = fmt.Errorf("wrong category level")
+
 	// DB reference to database
 	DB *gorm.DB
 

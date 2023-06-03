@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/dao"
+	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/model"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -10,9 +12,104 @@ type GoodsService struct {
 	proto.UnimplementedGoodsServer
 }
 
+func convertToGoodsInfoResponse(goods *model.Goods, category *model.Category, brand *model.Brands) *proto.GoodsInfoResponse {
+	rsp := &proto.GoodsInfoResponse{
+		Id:              goods.ID,
+		CategoryId:      goods.CategoryID,
+		Name:            goods.Name,
+		GoodsSn:         goods.GoodsSn,
+		ClickNum:        goods.ClickNum,
+		SoldNum:         goods.SoldNum,
+		FavNum:          goods.FavNum,
+		MarketPrice:     goods.MarketPrice,
+		ShopPrice:       goods.ShopPrice,
+		GoodsBrief:      goods.GoodsBrief,
+		GoodsDesc:       "",
+		ShipFree:        goods.ShipFree != 0,
+		Images:          []string{goods.Images},
+		DescImages:      []string{goods.DescImages},
+		GoodsFrontImage: goods.GoodsFrontImage,
+		IsNew:           goods.IsNew == 1,
+		IsHot:           goods.IsHot == 1,
+		OnSale:          goods.OnSale == 1,
+		AddTime:         goods.AddTime.Unix(),
+		Category: &proto.CategoryBriefInfoResponse{
+			Id:   category.ID,
+			Name: category.Name,
+		},
+		Brand: &proto.BrandInfoResponse{
+			Id:   brand.ID,
+			Name: brand.Name,
+			Logo: brand.Logo.String,
+		},
+	}
+	return rsp
+}
+
 func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterRequest) (*proto.GoodsListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	whereCond := dao.GoodsWhere{
+		PriceMin:    request.GetPriceMin(),
+		PriceMax:    request.GetPriceMax(),
+		IsHot:       request.GetIsHot(),
+		IsNew:       request.GetIsNew(),
+		Pages:       request.GetPages(),
+		PagePerNums: request.GetPagePerNums(),
+		KeyWords:    request.GetKeyWords(),
+		BrandId:     request.GetBrand(),
+	}
+	if request.TopCategory != 0 {
+		// 找到最下级分类
+		categoryList, err := dao.GetLowestCategoryList(ctx, request.TopCategory)
+		if err != nil {
+			return nil, err
+		}
+		var categoryIdList = make([]int32, 0, len(categoryList))
+		for _, category := range categoryList {
+			categoryIdList = append(categoryIdList, category.ID)
+		}
+		// 商品归属于最下级分类
+		whereCond.CategoryIdList = categoryIdList
+	}
+	// 货物列表
+	goodsList, total, err := dao.GetGoodsList(ctx, whereCond)
+	if err != nil {
+		return nil, err
+	}
+	categoryIdList := make([]int32, 0)
+	brandIdList := make([]int32, 0)
+	for _, goods := range goodsList {
+		categoryIdList = append(categoryIdList, goods.CategoryID)
+		brandIdList = append(brandIdList, goods.BrandID)
+	}
+	// 分类列表
+	categoryList, err := dao.GetCategoryList(ctx, categoryIdList)
+	if err != nil {
+		return nil, err
+	}
+	// 品牌列表
+	brandList, err := dao.GetBrandsList(ctx, brandIdList)
+	if err != nil {
+		return nil, err
+	}
+
+	var categoryMap = make(map[int32]*model.Category)
+	var brandsMap = make(map[int32]*model.Brands)
+	for _, category := range categoryList {
+		categoryMap[category.ID] = category
+	}
+	for _, brands := range brandList {
+		brandsMap[brands.ID] = brands
+	}
+
+	// 结果
+	data := make([]*proto.GoodsInfoResponse, 0, len(goodsList))
+	for _, goods := range goodsList {
+		data = append(data, convertToGoodsInfoResponse(goods, categoryMap[goods.CategoryID], brandsMap[goods.BrandID]))
+	}
+	rsp := new(proto.GoodsListResponse)
+	rsp.Total = int32(total)
+	rsp.Data = data
+	return rsp, nil
 }
 
 func (g GoodsService) BatchGetGoods(ctx context.Context, info *proto.BatchGoodsIdInfo) (*proto.GoodsListResponse, error) {

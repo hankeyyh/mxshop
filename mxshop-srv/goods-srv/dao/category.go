@@ -57,6 +57,56 @@ func GetCategory(ctx context.Context, argID int32) (record *model.Category, err 
 	return record, nil
 }
 
+func GetCategoryList(ctx context.Context, idList []int32) (recList []*model.Category, err error) {
+	err = DB.Where("id in ? and is_deleted = ?", idList, 0).Find(&recList).Error
+	return
+}
+
+// 查询最下级分类
+func GetLowestCategoryList(ctx context.Context, topCategoryId int32) (recList []*model.Category, err error) {
+	var topCategory model.Category
+	if err = DB.Where("id = ? and is_deleted = ?", topCategoryId, 0).First(&topCategory).Error; err != nil {
+		return
+	}
+
+	var parentIdList = []int32{topCategoryId}
+	for {
+		var childIdList []int32
+		err = DB.Where("parent_category_id in ? and is_deleted = ?", parentIdList, 0).Pluck("id", &childIdList).Error
+		if err != nil {
+			return
+		}
+		if len(childIdList) > 0 {
+			parentIdList = childIdList
+		} else {
+			break
+		}
+	}
+	//if topCategory.Level == 1 {
+	//	// 二级分类
+	//	subQuery := DB.Select("id").Where("parent_category_id = ? and is_deleted = ?", topCategoryId, 0).Table("category")
+	//	// 三级分类
+	//	err = DB.Where("parent_category_id in ? and is_deleted = ?", subQuery, 0).Pluck("id", &parentIdList).Error
+	//	if err != nil {
+	//		return
+	//	}
+	//} else if topCategory.Level == 2 {
+	//	err = DB.Where("parent_category_id = ? and is_deleted = ?", topCategoryId, 0).Pluck("id", &parentIdList).Error
+	//	if err != nil {
+	//		return
+	//	}
+	//} else if topCategory.Level == 3 {
+	//	// 三级分类已是最下层分类，直接返回
+	//	return []*model.Category{&topCategory}, nil
+	//} else {
+	//	err = ErrWrongLevel
+	//	return
+	//}
+	// 查询三级分类
+	err = DB.Where("id in ? and is_deleted = ?", parentIdList, 0).Find(&recList).Error
+	return
+}
+
 // AddCategory is a function to add a single record to category table in the mxshop_goods_srv database
 // error - ErrInsertFailed, db save call failed
 func AddCategory(ctx context.Context, record *model.Category) (result *model.Category, RowsAffected int64, err error) {
