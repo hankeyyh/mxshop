@@ -4,16 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/client"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/proto"
-	"github.com/hankeyyh/mxshop/mxshop-api/user-web/validators"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -22,14 +19,6 @@ type JsonTime time.Time
 func (j JsonTime) MarshalJSON() ([]byte, error) {
 	stamp := fmt.Sprintf("\"%s\"", time.Time(j).Format("2006-03-01"))
 	return []byte(stamp), nil
-}
-
-// PassWordLoginForm 注册请求
-type PassWordLoginForm struct {
-	Mobile    string `form:"mobile" json:"mobile" binding:"required,mobile"` //手机号码格式有规范可寻， 自定义validator
-	PassWord  string `form:"password" json:"password" binding:"required,min=3,max=20"`
-	Captcha   string `form:"captcha" json:"captcha" binding:"required,min=5,max=5"` // 图形验证码
-	CaptchaId string `form:"captcha_id" json:"captcha_id" binding:"required"`
 }
 
 // UserResponse 返回结构
@@ -72,30 +61,6 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 	}
 }
 
-// HandleValidatorError 处理表单验证错误
-func HandleValidatorError(ctx *gin.Context, err error) {
-	errs, ok := err.(validator.ValidationErrors)
-	if !ok {
-		ctx.JSON(http.StatusOK, gin.H{
-			"msg": err.Error(),
-		})
-	}
-	ctx.JSON(http.StatusBadRequest, gin.H{
-		"error": removeErrPrefix(errs.Translate(validators.DefaultTranslator())),
-	})
-	return
-}
-
-func removeErrPrefix(e map[string]string) map[string]string {
-	var res = make(map[string]string)
-	for key, val := range e {
-		//key = strings.SplitN(key, ".", 2)[1]
-		key = key[strings.Index(key, ".")+1:]
-		res[key] = val
-	}
-	return res
-}
-
 func GetUserList(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
 	log.Info(ctx, "访问用户: ", log.Any("userId", userId))
@@ -127,4 +92,12 @@ func GetUserList(ctx *gin.Context) {
 		})
 	}
 	ctx.JSON(http.StatusOK, result)
+}
+
+type RegisterUserForm struct {
+	Mobile string `json:"mobile" form:"mobile" binding:"required,mobile"`
+}
+
+func Register(ctx *gin.Context) {
+
 }

@@ -2,20 +2,60 @@ package api
 
 import (
 	"context"
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/client"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
 	middlewares "github.com/hankeyyh/mxshop/mxshop-api/user-web/middleware"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/proto"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/validators"
 	"github.com/mojocn/base64Captcha"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
+	"strings"
 	"time"
 )
 
 var captchaStore = base64Captcha.DefaultMemStore
+
+// PassWordLoginForm 注册请求
+type PassWordLoginForm struct {
+	Mobile    string `form:"mobile" json:"mobile" binding:"required,mobile"` //手机号码格式有规范可寻， 自定义validator
+	PassWord  string `form:"password" json:"password" binding:"required,min=3,max=20"`
+	Captcha   string `form:"captcha" json:"captcha" binding:"required,min=5,max=5"` // 图形验证码
+	CaptchaId string `form:"captcha_id" json:"captcha_id" binding:"required"`
+}
+
+// HandleValidatorError 处理表单验证错误
+func HandleValidatorError(ctx *gin.Context, err error) {
+	var errs validator.ValidationErrors
+	ok := errors.As(err, &errs)
+	if !ok {
+		ctx.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+	}
+	// 根据客户端语言获取翻译器
+	lang := ctx.Request.Header.Get("Accept-Language")
+	translator := validators.GetTranslator(lang)
+	ctx.JSON(http.StatusBadRequest, gin.H{
+		"error": removeErrPrefix(errs.Translate(translator)),
+	})
+	return
+}
+
+func removeErrPrefix(e map[string]string) map[string]string {
+	var res = make(map[string]string)
+	for key, val := range e {
+		//key = strings.SplitN(key, ".", 2)[1]
+		key = key[strings.Index(key, ".")+1:]
+		res[key] = val
+	}
+	return res
+}
 
 // GetCaptcha 获取图形验证码
 func GetCaptcha(ctx *gin.Context) {

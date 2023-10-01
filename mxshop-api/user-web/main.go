@@ -36,7 +36,7 @@ func main() {
 	engine := router.Init()
 
 	// 初始化 validator
-	if err := validators.Init("zh"); err != nil {
+	if err := validators.Init(); err != nil {
 		panic(err)
 	}
 

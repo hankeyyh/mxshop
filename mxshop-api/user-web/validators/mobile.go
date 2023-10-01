@@ -6,17 +6,17 @@ import (
 	"regexp"
 )
 
-func NewMobileCVT() CustomValidateTranslation {
-	return CustomValidateTranslation{
+type MobileValidate struct {
+	Tag          string
+	v            *validator.Validate
+	ValidateFunc validator.Func
+}
+
+func NewMobileCVT(v *validator.Validate) CustomValidator {
+	return &MobileValidate{
 		Tag:          "mobile",
+		v:            v,
 		ValidateFunc: validateMobile,
-		CustomRegisFunc: func(ut ut.Translator) error {
-			return ut.Add("mobile", "{0} 非法的手机号码!", true)
-		},
-		CustomTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
-			t, _ := ut.T("mobile", fe.Field())
-			return t
-		},
 	}
 }
 
@@ -28,4 +28,26 @@ func validateMobile(fl validator.FieldLevel) bool {
 		return false
 	}
 	return true
+}
+
+func (m *MobileValidate) RegisterValidation() error {
+	return m.v.RegisterValidation(m.Tag, m.ValidateFunc)
+}
+
+func (m *MobileValidate) RegisterTranslation(translator ut.Translator) error {
+	locale := translator.Locale()
+	var translation string
+	switch locale {
+	case "zh":
+		translation = "{0} 非法的手机号码！"
+	default:
+		translation = "{0} invalid mobile!"
+	}
+
+	return m.v.RegisterTranslation(m.Tag, translator, func(ut ut.Translator) error {
+		return ut.Add(m.Tag, translation, true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(m.Tag, fe.Field())
+		return t
+	})
 }

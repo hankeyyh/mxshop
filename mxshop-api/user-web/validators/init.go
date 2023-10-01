@@ -8,29 +8,29 @@ import (
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	enTranslations "github.com/go-playground/validator/v10/translations/en"
-	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
 	"reflect"
 	"strings"
 )
 
-// CustomValidateTranslation 自定义tag的验证&翻译
-type CustomValidateTranslation struct {
-	Tag             string
-	ValidateFunc    validator.Func
-	CustomRegisFunc validator.RegisterTranslationsFunc
-	CustomTransFunc validator.TranslationFunc
+// 自定义验证器接口
+type CustomValidator interface {
+	RegisterValidation() error
+	RegisterTranslation(translator ut.Translator) error
 }
 
-var cvtList []CustomValidateTranslation
+var cvtList []CustomValidator
 
-var defaultTranslator ut.Translator
+var translatorMap = make(map[string]ut.Translator)
 
-func DefaultTranslator() ut.Translator {
-	return defaultTranslator
+func GetTranslator(locale string) ut.Translator {
+	if translator, ok := translatorMap[locale]; ok {
+		return translator
+	}
+	// 默认英文
+	return translatorMap["en"]
 }
 
-func Init(locale string) error {
+func Init() error {
 	v, ok := binding.Validator.Engine().(*validator.Validate)
 	if !ok {
 		return errors.New("get validate fail")
@@ -43,36 +43,31 @@ func Init(locale string) error {
 		}
 		return name
 	})
-
-	// 默认翻译
-	uni := ut.New(en.New(), zh.New(), en.New())
-	defaultTranslator, ok = uni.GetTranslator(locale)
-	if !ok {
-		return errors.New("locale translator not found")
-	}
-
 	var err error
-	switch locale {
-	case "en":
-		err = enTranslations.RegisterDefaultTranslations(v, defaultTranslator)
-	case "zh":
-		err = zhTranslations.RegisterDefaultTranslations(v, defaultTranslator)
-	default:
-		err = enTranslations.RegisterDefaultTranslations(v, defaultTranslator)
-	}
-	if err != nil {
-		return errors.New("RegisterDefaultTranslations fail")
-	}
 
-	// 自定义验证&翻译
-	cvtList = append(cvtList, NewMobileCVT())
+	// 翻译
+	uni := ut.New(en.New(), zh.New(), en.New())
 
-	for _, vt := range cvtList {
-		if err = v.RegisterValidation(vt.Tag, vt.ValidateFunc); err != nil {
-			return errors.New(fmt.Sprintf("[%s]reg validate fail, %s", vt.Tag, err.Error()))
+	zhTranslator, _ := uni.GetTranslator("zh")
+	enTranslator, _ := uni.GetTranslator("en")
+	translatorMap["zh"] = zhTranslator
+	translatorMap["en"] = enTranslator
+
+	// 自定义验证
+	cvtList = append(cvtList, NewMobileCVT(v))
+
+	for _, cvt := range cvtList {
+		// 注册验证器
+		if err = cvt.RegisterValidation(); err != nil {
+			return errors.New(fmt.Sprintf("reg validate fail, %s", err.Error()))
 		}
-		if err = v.RegisterTranslation(vt.Tag, defaultTranslator, vt.CustomRegisFunc, vt.CustomTransFunc); err != nil {
-			return errors.New(fmt.Sprintf("[%s]reg trans fail, %s", vt.Tag, err.Error()))
+		// 注册验证器中文翻译
+		if err = cvt.RegisterTranslation(zhTranslator); err != nil {
+			return errors.New(fmt.Sprintf("reg zh-trans fail, %s", err.Error()))
+		}
+		// 注册验证器英文翻译
+		if err = cvt.RegisterTranslation(enTranslator); err != nil {
+			return errors.New(fmt.Sprintf("reg en-trans fail, %s", err.Error()))
 		}
 	}
 
