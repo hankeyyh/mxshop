@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/client"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/form"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
 	middlewares "github.com/hankeyyh/mxshop/mxshop-api/user-web/middleware"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/proto"
@@ -20,14 +21,6 @@ import (
 )
 
 var captchaStore = base64Captcha.DefaultMemStore
-
-// PassWordLoginForm 注册请求
-type PassWordLoginForm struct {
-	Mobile    string `form:"mobile" json:"mobile" binding:"required,mobile"` //手机号码格式有规范可寻， 自定义validator
-	PassWord  string `form:"password" json:"password" binding:"required,min=3,max=20"`
-	Captcha   string `form:"captcha" json:"captcha" binding:"required,min=5,max=5"` // 图形验证码
-	CaptchaId string `form:"captcha_id" json:"captcha_id" binding:"required"`
-}
 
 // HandleValidatorError 处理表单验证错误
 func HandleValidatorError(ctx *gin.Context, err error) {
@@ -50,7 +43,6 @@ func HandleValidatorError(ctx *gin.Context, err error) {
 func removeErrPrefix(e map[string]string) map[string]string {
 	var res = make(map[string]string)
 	for key, val := range e {
-		//key = strings.SplitN(key, ".", 2)[1]
 		key = key[strings.Index(key, ".")+1:]
 		res[key] = val
 	}
@@ -79,7 +71,7 @@ func GetCaptcha(ctx *gin.Context) {
 // PasswordLogin 密码登录
 func PasswordLogin(ctx *gin.Context) {
 	// 表单验证
-	passwordLoginForm := PassWordLoginForm{}
+	passwordLoginForm := form.PassWordLoginForm{}
 	if err := ctx.ShouldBind(&passwordLoginForm); err != nil {
 		HandleValidatorError(ctx, err)
 		return

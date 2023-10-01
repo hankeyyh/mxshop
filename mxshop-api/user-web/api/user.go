@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/client"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/form"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/proto"
 	"google.golang.org/grpc/codes"
@@ -53,7 +54,7 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 				})
 			default:
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": e.Code(),
+					"msg": e.Message(),
 				})
 			}
 			return
@@ -94,10 +95,30 @@ func GetUserList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-type RegisterUserForm struct {
-	Mobile string `json:"mobile" form:"mobile" binding:"required,mobile"`
-}
-
+// 注册用户
 func Register(ctx *gin.Context) {
+	registerForm := form.RegisterUserForm{}
+	if err := ctx.ShouldBind(&registerForm); err != nil {
+		HandleValidatorError(ctx, err)
+		return
+	}
 
+	userSvrClient := client.UserSvrClient
+	rsp, err := userSvrClient.CreateUser(ctx, &proto.CreateUserInfo{
+		Nickname: registerForm.Nickname,
+		Password: registerForm.Password,
+		Mobile:   registerForm.Mobile,
+	})
+	if err != nil {
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+	result := UserResponse{
+		Id:       rsp.GetId(),
+		NickName: rsp.GetNickname(),
+		Birthday: JsonTime(time.Unix(int64(rsp.GetBirthday()), 0)),
+		Gender:   rsp.GetGender(),
+		Mobile:   rsp.GetMobile(),
+	}
+	ctx.JSON(http.StatusOK, result)
 }

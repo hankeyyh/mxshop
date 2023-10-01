@@ -20,13 +20,14 @@ func Init() *gin.Engine {
 
 	baseGroup := engine.Group("/u/v1/base")
 	{
-		baseGroup.POST("/login", api.PasswordLogin)
 		baseGroup.GET("/captcha", api.GetCaptcha)
 	}
 
 	userGroup := engine.Group("/u/v1/user")
 	{
 		userGroup.GET("/list", middlewares.JWTAuth(), middlewares.IsAdminAuth(), api.GetUserList)
+		userGroup.POST("/login", api.PasswordLogin)
+		userGroup.POST("/register", api.Register)
 	}
 	return engine
 }

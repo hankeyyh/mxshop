@@ -12,15 +12,14 @@ import (
 	"strings"
 )
 
+var cvtList []CustomValidator
+var translatorMap = make(map[string]ut.Translator)
+
 // 自定义验证器接口
 type CustomValidator interface {
 	RegisterValidation() error
 	RegisterTranslation(translator ut.Translator) error
 }
-
-var cvtList []CustomValidator
-
-var translatorMap = make(map[string]ut.Translator)
 
 func GetTranslator(locale string) ut.Translator {
 	if translator, ok := translatorMap[locale]; ok {
