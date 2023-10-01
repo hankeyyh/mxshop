@@ -10,6 +10,7 @@ import (
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/register"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/router"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/validators"
+	"github.com/hankeyyh/mxshop/mxshop-api/user-web/xsignal"
 	"github.com/hashicorp/go-uuid"
 	"strconv"
 )
@@ -64,10 +65,17 @@ func main() {
 		panic(err)
 	}
 
+	//终止信号
+	xsignal.WaitShutdown(func(graceful bool) {
+		err := register.DefaultRegistry().Deregister(serviceId)
+		if err != nil {
+			log.Error(context.Background(), "consul.deregistry fail", log.Any("err", err))
+			return
+		}
+	})
+
 	//run!!
 	if err = engine.Run(addr); err != nil {
 		log.Panic(context.Background(), "服务启动失败", log.Any("err", err))
 	}
-
-	//接收终止信号
 }

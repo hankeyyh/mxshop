@@ -6,6 +6,8 @@ import (
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/config"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/log"
 	"github.com/hankeyyh/mxshop/mxshop-api/user-web/proto"
+	"github.com/hashicorp/consul/api"
+	"github.com/hashicorp/consul/api/watch"
 	_ "github.com/mbobakov/grpc-consul-resolver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,7 +39,36 @@ func InitUserSrvClient() error {
 		return err
 	}
 	// todo 1. 用户服务下线了，改ip端口了怎么办
+	go func() {
+		err := watchUserSrv(fmt.Sprintf("%s:%d", consulConf.Host, consulConf.Port))
+		if err != nil {
+			log.Error(context.Background(), "watchUserSrv fail", log.Any("err", err))
+		}
+	}()
 	// todo 2. 多个goroutine用一个client，性能问题 - 连接池
 	UserSvrClient = proto.NewUserClient(conn)
+	return nil
+}
+
+func watchUserSrv(consulAddr string) error {
+	plan, err := watch.Parse(map[string]interface{}{
+		"type":    "service",
+		"service": "user-srv",
+	})
+	if err != nil {
+		return err
+	}
+	plan.Handler = func(u uint64, data interface{}) {
+		switch d := data.(type) {
+		case []*api.ServiceEntry:
+			for _, i := range d {
+				fmt.Printf("service %s change, host: %s, port: %d\n",
+					i.Service.Service, i.Service.Address, i.Service.Port)
+			}
+		}
+	}
+	if err = plan.Run(consulAddr); err != nil {
+		return err
+	}
 	return nil
 }

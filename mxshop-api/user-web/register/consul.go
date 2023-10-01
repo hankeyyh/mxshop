@@ -15,13 +15,13 @@ type ConsulClient struct {
 
 func InitConsulRegister() {
 	conf := config.DefaultConfig.Consul
-	registry = ConsulClient{
+	registry = &ConsulClient{
 		Host: conf.Host,
 		Port: conf.Port,
 	}
 }
 
-func (r ConsulClient) Register(serviceName string, serviceId string, tags []string, address string, port int, options ...map[string]interface{}) error {
+func (r *ConsulClient) Register(serviceName string, serviceId string, tags []string, address string, port int, options ...map[string]interface{}) error {
 	consulConfig := api.DefaultConfig()
 	consulConfig.Address = fmt.Sprintf("%s:%d", r.Host, r.Port)
 
@@ -46,7 +46,7 @@ func (r ConsulClient) Register(serviceName string, serviceId string, tags []stri
 	return err
 }
 
-func (r ConsulClient) Deregister(serviceId string) error {
+func (r *ConsulClient) Deregister(serviceId string) error {
 	consulConfig := api.DefaultConfig()
 	consulConfig.Address = fmt.Sprintf("%s:%d", r.Host, r.Port)
 
@@ -58,7 +58,7 @@ func (r ConsulClient) Deregister(serviceId string) error {
 	return err
 }
 
-func (r ConsulClient) GetServiceAddr(serviceName string) (string, error) {
+func (r *ConsulClient) GetServiceAddr(serviceName string) (string, error) {
 	consulConfig := api.DefaultConfig()
 	consulConfig.Address = fmt.Sprintf("%s:%d", r.Host, r.Port)
 
