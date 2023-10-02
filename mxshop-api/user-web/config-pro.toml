@@ -1,24 +1,35 @@
-[service]
-service_name = "user-web"
-service_tags = ["web", "imooc"]
-host = "192.168.3.56"
-port = 8021
+# nacos
+namespace_id = "b60d09aa-20aa-448b-a842-60d2dc013402"
+timeout = 5000
+log_dir = "storage/nacos/log"
+cache_dir = "storage/nacos/cache"
+log_level = "info"
+ip_addr = "127.0.0.1"
+port = 8848
+data_id = "user-web"
+group="prod"
 
-[client.user-srv]
-host = "127.0.0.1"
-port = 8083
-
-[log]
-level = "debug"
-file_path = "storage/service.log"
-
-[jwt]
-key = "5WVdD8p2n^aK4MQv"
-
-[redis]
-host = "127.0.0.1"
-port = 6379
-
-[consul]
-host = "127.0.0.1"
-port = 8500
+#[service]
+#service_name = "user-web"
+#service_tags = ["web", "imooc"]
+#host = "192.168.3.56"
+#port = 8021
+#
+#[client.user-srv]
+#host = "127.0.0.1"
+#port = 8083
+#
+#[log]
+#level = "debug"
+#file_path = "storage/service.log"
+#
+#[jwt]
+#key = "5WVdD8p2n^aK4MQv"
+#
+#[redis]
+#host = "127.0.0.1"
+#port = 6379
+#
+#[consul]
+#host = "127.0.0.1"
+#port = 8500
