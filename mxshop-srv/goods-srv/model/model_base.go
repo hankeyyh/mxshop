@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"gorm.io/gorm"
+)
 
 // Action CRUD actions
 type Action int32
@@ -56,7 +59,7 @@ func (i Action) String() string {
 // Model interface methods for database structs generated
 type Model interface {
 	TableName() string
-	BeforeSave() error
+	BeforeSave(*gorm.DB) error
 	Prepare()
 	Validate(action Action) error
 	TableInfo() *TableInfo

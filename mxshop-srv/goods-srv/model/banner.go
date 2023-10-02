@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"gorm.io/gorm"
 	"time"
 
 	"github.com/guregu/null"
@@ -216,7 +217,7 @@ func (b *Banner) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (b *Banner) BeforeSave() error {
+func (b *Banner) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
