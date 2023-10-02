@@ -46,35 +46,7 @@ func convertToGoodsInfoResponse(goods *model.Goods, category *model.Category, br
 	return rsp
 }
 
-func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterRequest) (*proto.GoodsListResponse, error) {
-	whereCond := dao.GoodsWhere{
-		PriceMin:    request.GetPriceMin(),
-		PriceMax:    request.GetPriceMax(),
-		IsHot:       request.GetIsHot(),
-		IsNew:       request.GetIsNew(),
-		Pages:       request.GetPages(),
-		PagePerNums: request.GetPagePerNums(),
-		KeyWords:    request.GetKeyWords(),
-		BrandId:     request.GetBrand(),
-	}
-	if request.TopCategory != 0 {
-		// 找到最下级分类
-		categoryList, err := dao.GetLowestCategoryList(ctx, request.TopCategory)
-		if err != nil {
-			return nil, err
-		}
-		var categoryIdList = make([]int32, 0, len(categoryList))
-		for _, category := range categoryList {
-			categoryIdList = append(categoryIdList, category.ID)
-		}
-		// 商品归属于最下级分类
-		whereCond.CategoryIdList = categoryIdList
-	}
-	// 货物列表
-	goodsList, total, err := dao.GetGoodsList(ctx, whereCond)
-	if err != nil {
-		return nil, err
-	}
+func (g GoodsService) getGoodsListResponse(ctx context.Context, goodsList []*model.Goods) ([]*proto.GoodsInfoResponse, error) {
 	categoryIdList := make([]int32, 0)
 	brandIdList := make([]int32, 0)
 	for _, goods := range goodsList {
@@ -106,28 +78,78 @@ func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterR
 	for _, goods := range goodsList {
 		data = append(data, convertToGoodsInfoResponse(goods, categoryMap[goods.CategoryID], brandsMap[goods.BrandID]))
 	}
+	return data, nil
+}
+
+func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterRequest) (*proto.GoodsListResponse, error) {
+	whereCond := dao.GoodsWhere{
+		PriceMin:    request.GetPriceMin(),
+		PriceMax:    request.GetPriceMax(),
+		IsHot:       request.GetIsHot(),
+		IsNew:       request.GetIsNew(),
+		Pages:       request.GetPages(),
+		PagePerNums: request.GetPagePerNums(),
+		KeyWords:    request.GetKeyWords(),
+		BrandId:     request.GetBrand(),
+	}
+	if request.TopCategory != 0 {
+		// 找到最下级分类
+		categoryList, err := dao.GetLowestCategoryList(ctx, request.TopCategory)
+		if err != nil {
+			return nil, err
+		}
+		var categoryIdList = make([]int32, 0, len(categoryList))
+		for _, category := range categoryList {
+			categoryIdList = append(categoryIdList, category.ID)
+		}
+		// 商品归属于最下级分类
+		whereCond.CategoryIdList = categoryIdList
+	}
+	// 货物列表
+	goodsList, total, err := dao.GetGoodsList(ctx, whereCond)
+	if err != nil {
+		return nil, err
+	}
+	// goods model list -> goods pb list
+	goodsInfoResponseList, err := g.getGoodsListResponse(ctx, goodsList)
+	if err != nil {
+		return nil, err
+	}
 	rsp := new(proto.GoodsListResponse)
 	rsp.Total = int32(total)
-	rsp.Data = data
+	rsp.Data = goodsInfoResponseList
 	return rsp, nil
 }
 
-func (g GoodsService) BatchGetGoods(ctx context.Context, info *proto.BatchGoodsIdInfo) (*proto.GoodsListResponse, error) {
+func (g GoodsService) BatchGetGoods(ctx context.Context, request *proto.BatchGoodsIdInfo) (*proto.GoodsListResponse, error) {
+	idList := request.GetId()
+	goodsList, err := dao.BatchGetGoods(ctx, idList)
+	if err != nil {
+		return nil, err
+	}
+	// goods model list -> goods pb list
+	goodsInfoResponseList, err := g.getGoodsListResponse(ctx, goodsList)
+	if err != nil {
+		return nil, err
+	}
+
+	rsp := new(proto.GoodsListResponse)
+	rsp.Total = int32(len(goodsList))
+	rsp.Data = goodsInfoResponseList
+	return rsp, nil
+}
+
+func (g GoodsService) CreateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (g GoodsService) CreateGoods(ctx context.Context, info *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
+func (g GoodsService) DeleteGoods(ctx context.Context, request *proto.DeleteGoodsInfo) (*emptypb.Empty, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (g GoodsService) DeleteGoods(ctx context.Context, info *proto.DeleteGoodsInfo) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (g GoodsService) UpdateGoods(ctx context.Context, info *proto.CreateGoodsInfo) (*emptypb.Empty, error) {
+func (g GoodsService) UpdateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*emptypb.Empty, error) {
 	//TODO implement me
 	panic("implement me")
 }

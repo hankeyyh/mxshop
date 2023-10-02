@@ -34,3 +34,13 @@ func TestGoodsList(t *testing.T) {
 	}
 	t.Log(rsp)
 }
+
+func TestBatchGetGoods(t *testing.T) {
+	req := new(proto.BatchGoodsIdInfo)
+	req.Id = []int32{421, 422, 423, 424}
+	rsp, err := client.BatchGetGoods(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}

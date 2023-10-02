@@ -102,6 +102,14 @@ func GetGoodsList(ctx context.Context, where GoodsWhere) (recList []*model.Goods
 	return
 }
 
+// 批量获取goods
+func BatchGetGoods(ctx context.Context, idList []int32) (recList []*model.Goods, err error) {
+	if err = DB.Where("id in ?", idList).Find(&recList).Error; err != nil {
+		return nil, err
+	}
+	return recList, nil
+}
+
 // AddGoods is a function to add a single record to goods table in the mxshop_goods_srv database
 // error - ErrInsertFailed, db save call failed
 func AddGoods(ctx context.Context, record *model.Goods) (result *model.Goods, RowsAffected int64, err error) {
