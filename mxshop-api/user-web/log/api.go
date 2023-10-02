@@ -26,3 +26,8 @@ func Panic(ctx context.Context, msg string, fields ...Field) {
 	logger := DefaultLogger()
 	logger.Panic(msg, fields...)
 }
+
+func Fatal(ctx context.Context, msg string, fields ...Field) {
+	logger := DefaultLogger()
+	logger.Fatal(msg, fields...)
+}
