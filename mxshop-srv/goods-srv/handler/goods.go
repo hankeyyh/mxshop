@@ -2,10 +2,13 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/dao"
+	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/log"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/model"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strings"
 )
 
 type GoodsService struct {
@@ -44,6 +47,18 @@ func convertToGoodsInfoResponse(goods *model.Goods, category *model.Category, br
 		},
 	}
 	return rsp
+}
+
+func (g GoodsService) getGoodsInfoResponse(ctx context.Context, goods *model.Goods) (*proto.GoodsInfoResponse, error) {
+	category, err := dao.GetCategory(ctx, goods.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+	brand, err := dao.GetBrands(ctx, goods.BrandID)
+	if err != nil {
+		return nil, err
+	}
+	return convertToGoodsInfoResponse(goods, category, brand), nil
 }
 
 func (g GoodsService) getGoodsListResponse(ctx context.Context, goodsList []*model.Goods) ([]*proto.GoodsInfoResponse, error) {
@@ -140,8 +155,76 @@ func (g GoodsService) BatchGetGoods(ctx context.Context, request *proto.BatchGoo
 }
 
 func (g GoodsService) CreateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	categoryId := request.GetCategoryId()
+	brandId := request.GetBrandId()
+
+	// 检查分类
+	_, err := dao.GetCategory(ctx, categoryId)
+	if err != nil {
+		log.Info("category not exist")
+		return nil, err
+	}
+	// 检查品牌
+	_, err = dao.GetBrands(ctx, brandId)
+	if err != nil {
+		log.Info("brand not exist")
+		return nil, err
+	}
+
+	// 创建goods
+	var onSale int32 = 0
+	if request.OnSale {
+		onSale = 1
+	}
+	var shipFree int32 = 0
+	if request.ShipFree {
+		shipFree = 1
+	}
+	var isNew int32 = 0
+	if request.IsNew {
+		isNew = 1
+	}
+	var isHot int32 = 0
+	if request.IsHot {
+		isHot = 1
+	}
+	// 将每个字符串用双引号引起来 - images
+	quotedStrs := make([]string, len(request.Images))
+	for i, s := range request.Images {
+		quotedStrs[i] = fmt.Sprintf("%q", s)
+	}
+	images := "[" + strings.Join(quotedStrs, ",") + "]"
+
+	// 将每个字符串用双引号引起来 - descImages
+	quotedStrs = make([]string, len(request.DescImages))
+	for i, s := range request.Images {
+		quotedStrs[i] = fmt.Sprintf("%q", s)
+	}
+	descImages := "[" + strings.Join(quotedStrs, ",") + "]"
+
+	goods := &model.Goods{
+		CategoryID:      categoryId,
+		BrandID:         brandId,
+		OnSale:          onSale,
+		GoodsSn:         request.GoodsSn,
+		Name:            request.Name,
+		Stocks:          request.Stocks,
+		MarketPrice:     request.MarketPrice,
+		ShopPrice:       request.ShopPrice,
+		GoodsBrief:      request.GoodsBrief,
+		ShipFree:        shipFree,
+		Images:          images,
+		DescImages:      descImages,
+		GoodsFrontImage: request.GoodsFrontImage,
+		IsNew:           isNew,
+		IsHot:           isHot,
+	}
+	createdGoods, _, err := dao.AddGoods(ctx, goods)
+	if err != nil {
+		log.Error("dao.AddGoods fail")
+		return nil, err
+	}
+	return g.getGoodsInfoResponse(ctx, createdGoods)
 }
 
 func (g GoodsService) DeleteGoods(ctx context.Context, request *proto.DeleteGoodsInfo) (*emptypb.Empty, error) {

@@ -44,3 +44,29 @@ func TestBatchGetGoods(t *testing.T) {
 	}
 	t.Log(rsp)
 }
+
+func TestCreateGoods(t *testing.T) {
+	req := &proto.CreateGoodsInfo{
+		Name:            "黑色鲤鱼",
+		GoodsSn:         "123123",
+		Stocks:          123,
+		MarketPrice:     12,
+		ShopPrice:       38,
+		GoodsBrief:      "黑色鲤鱼",
+		GoodsDesc:       "黑色鲤鱼",
+		ShipFree:        false,
+		Images:          []string{"1.img", "2.img"},
+		DescImages:      []string{"1.img", "2.img"},
+		GoodsFrontImage: "1.img",
+		IsNew:           true,
+		IsHot:           true,
+		OnSale:          true,
+		CategoryId:      130361,
+		BrandId:         616,
+	}
+	rsp, err := client.CreateGoods(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
