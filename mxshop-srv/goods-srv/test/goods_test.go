@@ -53,7 +53,6 @@ func TestCreateGoods(t *testing.T) {
 		MarketPrice:     12,
 		ShopPrice:       38,
 		GoodsBrief:      "黑色鲤鱼",
-		GoodsDesc:       "黑色鲤鱼",
 		ShipFree:        false,
 		Images:          []string{"1.img", "2.img"},
 		DescImages:      []string{"1.img", "2.img"},
@@ -65,6 +64,43 @@ func TestCreateGoods(t *testing.T) {
 		BrandId:         616,
 	}
 	rsp, err := client.CreateGoods(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestUpdateGoods(t *testing.T) {
+	req := &proto.CreateGoodsInfo{
+		Id:              841,
+		Name:            "黑色鲤鱼2",
+		GoodsSn:         "123123",
+		Stocks:          123,
+		MarketPrice:     12,
+		ShopPrice:       38,
+		GoodsBrief:      "黑色鲤鱼",
+		ShipFree:        false,
+		Images:          []string{"1.img", "2.img"},
+		DescImages:      []string{"1.img", "2.img"},
+		GoodsFrontImage: "1.img",
+		IsNew:           true,
+		IsHot:           true,
+		OnSale:          true,
+		CategoryId:      130361,
+		BrandId:         616,
+	}
+	rsp, err := client.UpdateGoods(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestGetGoodsDetail(t *testing.T) {
+	req := &proto.GoodInfoRequest{
+		Id: 788,
+	}
+	rsp, err := client.GetGoodsDetail(context.Background(), req)
 	if err != nil {
 		panic(err)
 	}

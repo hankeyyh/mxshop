@@ -187,7 +187,6 @@ message CreateGoodsInfo {
     float marketPrice = 8;
     float shopPrice = 9;
     string goodsBrief = 10;
-    string goodsDesc = 11;
     bool shipFree = 12;
     repeated string images = 13;
     repeated string descImages = 14;

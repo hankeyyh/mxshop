@@ -221,25 +221,109 @@ func (g GoodsService) CreateGoods(ctx context.Context, request *proto.CreateGood
 	}
 	createdGoods, _, err := dao.AddGoods(ctx, goods)
 	if err != nil {
-		log.Error("dao.AddGoods fail")
+		log.Error("dao.AddGoods fail", log.Any("err", err))
 		return nil, err
 	}
 	return g.getGoodsInfoResponse(ctx, createdGoods)
 }
 
 func (g GoodsService) DeleteGoods(ctx context.Context, request *proto.DeleteGoodsInfo) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	_, err := dao.DeleteGoods(ctx, id)
+	if err != nil {
+		log.Error("dao.DeleteGoods fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) UpdateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	categoryId := request.GetCategoryId()
+	brandId := request.GetBrandId()
+	goodsId := request.GetId()
+
+	// 检查分类
+	_, err := dao.GetCategory(ctx, categoryId)
+	if err != nil {
+		log.Info("category not exist")
+		return nil, err
+	}
+	// 检查品牌
+	_, err = dao.GetBrands(ctx, brandId)
+	if err != nil {
+		log.Info("brand not exist")
+		return nil, err
+	}
+	// 检查商品
+	goods, err := dao.GetGoods(ctx, goodsId)
+	if err != nil {
+		log.Info("goods not exist")
+		return nil, err
+	}
+
+	// 创建goods
+	var onSale int32 = 0
+	if request.OnSale {
+		onSale = 1
+	}
+	var shipFree int32 = 0
+	if request.ShipFree {
+		shipFree = 1
+	}
+	var isNew int32 = 0
+	if request.IsNew {
+		isNew = 1
+	}
+	var isHot int32 = 0
+	if request.IsHot {
+		isHot = 1
+	}
+	// 将每个字符串用双引号引起来 - images
+	quotedStrs := make([]string, len(request.Images))
+	for i, s := range request.Images {
+		quotedStrs[i] = fmt.Sprintf("%q", s)
+	}
+	images := "[" + strings.Join(quotedStrs, ",") + "]"
+
+	// 将每个字符串用双引号引起来 - descImages
+	quotedStrs = make([]string, len(request.DescImages))
+	for i, s := range request.Images {
+		quotedStrs[i] = fmt.Sprintf("%q", s)
+	}
+	descImages := "[" + strings.Join(quotedStrs, ",") + "]"
+
+	goods.BrandID = brandId
+	goods.CategoryID = categoryId
+	goods.Name = request.GetName()
+	goods.GoodsSn = request.GetGoodsSn()
+	goods.MarketPrice = request.GetMarketPrice()
+	goods.ShopPrice = request.GetShopPrice()
+	goods.GoodsBrief = request.GetGoodsBrief()
+	goods.ShipFree = shipFree
+	goods.Images = images
+	goods.DescImages = descImages
+	goods.GoodsFrontImage = request.GoodsFrontImage
+	goods.IsNew = isNew
+	goods.IsHot = isHot
+	goods.OnSale = onSale
+
+	_, _, err = dao.UpdateGoods(ctx, goodsId, goods)
+	if err != nil {
+		log.Error("dao.UpdateGoods fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) GetGoodsDetail(ctx context.Context, request *proto.GoodInfoRequest) (*proto.GoodsInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+
+	goods, err := dao.GetGoods(ctx, id)
+	if err != nil {
+		log.Error("dao.GetGoods fail", log.Any("err", err))
+		return nil, err
+	}
+	return g.getGoodsInfoResponse(ctx, goods)
 }
 
 func (g GoodsService) GetAllCategorysList(ctx context.Context, empty *emptypb.Empty) (*proto.CategoryListResponse, error) {
