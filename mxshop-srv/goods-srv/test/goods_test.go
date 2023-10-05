@@ -115,3 +115,14 @@ func TestGetAllCategorysList(t *testing.T) {
 	}
 	t.Log(rsp)
 }
+
+func TestGetSubCategory(t *testing.T) {
+	req := &proto.CategoryListRequest{
+		Id: 130358,
+	}
+	rsp, err := client.GetSubCategory(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}

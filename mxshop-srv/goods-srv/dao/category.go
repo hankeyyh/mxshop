@@ -60,6 +60,11 @@ func GetCategoryList(ctx context.Context, idList []int32) (recList []*model.Cate
 	return
 }
 
+func GetCategoryListByParentId(ctx context.Context, parentId int32) (recList []*model.Category, err error) {
+	err = DB.Where("parent_category_id = ? and is_deleted = ?", parentId, 0).Find(&recList).Error
+	return
+}
+
 // 查询最下级分类
 func GetLowestCategoryList(ctx context.Context, topCategoryId int32) (recList []*model.Category, err error) {
 	var topCategory model.Category

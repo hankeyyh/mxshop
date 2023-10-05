@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/dao"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/log"
@@ -411,8 +412,36 @@ func (g GoodsService) GetAllCategorysList(ctx context.Context, empty *emptypb.Em
 }
 
 func (g GoodsService) GetSubCategory(ctx context.Context, request *proto.CategoryListRequest) (*proto.SubCategoryListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	categoryId := request.GetId()
+	category, err := dao.GetCategory(ctx, categoryId)
+	if errors.Is(err, dao.ErrNotFound) {
+		return nil, err
+	}
+	if err != nil {
+		log.Error("dao.GetCategory fail", log.Any("err", err))
+		return nil, err
+	}
+
+	// 子分类
+	subCategoryList, err := dao.GetCategoryListByParentId(ctx, categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 组装数据
+	categoryPb := convertToCategoryInfoResponse(category)
+	subCategoryPbList := make([]*proto.CategoryInfoResponse, 0, len(subCategoryList))
+	for _, subCategory := range subCategoryList {
+		subCategoryPbList = append(subCategoryPbList, convertToCategoryInfoResponse(subCategory))
+	}
+
+	rsp := &proto.SubCategoryListResponse{
+		Total:        int32(len(subCategoryPbList)),
+		Info:         categoryPb,
+		SubCategorys: subCategoryPbList,
+	}
+
+	return rsp, nil
 }
 
 func (g GoodsService) CreateCategory(ctx context.Context, request *proto.CategoryInfoRequest) (*proto.CategoryInfoResponse, error) {
