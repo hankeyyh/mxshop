@@ -127,7 +127,7 @@ func TestGetSubCategory(t *testing.T) {
 	t.Log(rsp)
 }
 
-func TestCreateAndDeleteCategory(t *testing.T) {
+func TestCreateUpdateDeleteCategory(t *testing.T) {
 	req := &proto.CategoryInfoRequest{
 		Name:           "测试分类2级",
 		ParentCategory: 130358,
@@ -157,6 +157,141 @@ func TestCreateAndDeleteCategory(t *testing.T) {
 	delRsp, err := client.DeleteCategory(context.Background(), delReq)
 	if err != nil {
 		panic(delRsp)
+	}
+	t.Log(delRsp)
+}
+
+func TestBrandList(t *testing.T) {
+	req := &proto.BrandFilterRequest{
+		Pages:       1,
+		PagePerNums: 20,
+	}
+	rsp, err := client.BrandList(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestCreateUpdateDeleteBrand(t *testing.T) {
+	req := &proto.BrandRequest{
+		Name: "测试brand",
+		Logo: "测试logo",
+	}
+	rsp, err := client.CreateBrand(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+
+	upReq := &proto.BrandRequest{
+		Id:   rsp.GetId(),
+		Name: "测试brand2",
+		Logo: "测试logo2",
+	}
+	upRsp, err := client.UpdateBrand(context.Background(), upReq)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(upRsp)
+
+	delReq := &proto.BrandRequest{
+		Id: rsp.GetId(),
+	}
+	delRsp, err := client.DeleteBrand(context.Background(), delReq)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(delRsp)
+}
+
+func TestBannerList(t *testing.T) {
+	rsp, err := client.BannerList(context.Background(), &emptypb.Empty{})
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestCreateUpdateDeleteBanner(t *testing.T) {
+	req := &proto.BannerRequest{
+		Index: 1,
+		Image: "测试image",
+		Url:   "测试url",
+	}
+	rsp, err := client.CreateBanner(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+
+	upReq := &proto.BannerRequest{
+		Id:    rsp.GetId(),
+		Index: 2,
+		Image: "测试image2",
+		Url:   "测试url2",
+	}
+	upRsp, err := client.UpdateBanner(context.Background(), upReq)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(upRsp)
+
+	delReq := &proto.BannerRequest{Id: rsp.GetId()}
+	delRsp, err := client.DeleteBanner(context.Background(), delReq)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(delRsp)
+}
+
+func TestCategoryBrandList(t *testing.T) {
+	req := &proto.CategoryBrandFilterRequest{
+		Pages:       1,
+		PagePerNums: 20,
+	}
+	rsp, err := client.CategoryBrandList(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestGetCategoryBrandList(t *testing.T) {
+	req := &proto.CategoryInfoRequest{Id: 130366}
+	rsp, err := client.GetCategoryBrandList(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestCreateUpdateDeleteCategoryBrand(t *testing.T) {
+	req := &proto.CategoryBrandRequest{
+		CategoryId: 130358,
+		BrandId:    856,
+	}
+	rsp, err := client.CreateCategoryBrand(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+
+	upReq := &proto.CategoryBrandRequest{
+		Id:         rsp.GetId(),
+		CategoryId: 135505,
+		BrandId:    1072,
+	}
+	upRsp, err := client.UpdateCategoryBrand(context.Background(), upReq)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(upRsp)
+
+	delReq := &proto.CategoryBrandRequest{Id: rsp.GetId()}
+	delRsp, err := client.DeleteCategoryBrand(context.Background(), delReq)
+	if err != nil {
+		panic(err)
 	}
 	t.Log(delRsp)
 }
