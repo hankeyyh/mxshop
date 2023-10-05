@@ -2,6 +2,8 @@ package dao
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 	"time"
 
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/model"
@@ -55,6 +57,16 @@ func GetBrands(ctx context.Context, argID int32) (record *model.Brands, err erro
 	}
 
 	return record, nil
+}
+
+func GetBrandsByName(ctx context.Context, name string) (record *model.Brands, err error) {
+	if err = DB.Where("name = ? and is_deleted = ?", name, 0).First(&record).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = ErrNotFound
+			return
+		}
+	}
+	return record, err
 }
 
 func GetBrandsList(ctx context.Context, idList []int32) (recList []*model.Brands, err error) {

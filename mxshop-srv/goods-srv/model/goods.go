@@ -52,7 +52,7 @@ CREATE TABLE `goods` (
 
 JSON Sample
 -------------------------------------
-{    "id": 51,    "add_time": "2218-12-08T03:03:18.860353452+08:00",    "is_deleted": 51,    "update_time": "2074-11-06T03:05:43.129756482+08:00",    "category_id": 89,    "brand_id": 98,    "on_sale": 98,    "goods_sn": "LFtqQSbMwoLZfbFlfBUYCrDOx",    "name": "eCGsBjhlsTCgCFEecQqgWaLOs",    "click_num": 20,    "sold_num": 0,    "fav_num": 99,    "stocks": 62,    "market_price": 0.8300908,    "shop_price": 0.4458649,    "goods_brief": "mHCZvZEkXeesXptOmLbePgeIj",    "ship_free": 38,    "images": "XhJSRucrDHZscuPgxXwICODeP",    "desc_images": "oMXfLEZeesaLWPFmmUukhCnaO",    "goods_front_image": "JvgTLhblRtTGBSAGbebrWEuYL",    "is_new": 23,    "is_hot": 52}
+{    "id": 98,    "add_time": "2213-11-25T22:49:33.93317861+08:00",    "is_deleted": 61,    "update_time": "2107-04-10T01:22:54.916741419+08:00",    "category_id": 64,    "brand_id": 20,    "on_sale": 2,    "goods_sn": "tLJsZZLEQKZoLfOYjYeyqNqmA",    "name": "mTBOZiZnKOjFfcNDKtEUXkUIt",    "click_num": 22,    "sold_num": 93,    "fav_num": 99,    "stocks": 36,    "market_price": 0.18349478,    "shop_price": 0.72514945,    "goods_brief": "xWtkcxLXACJwBFJUmOXTjyoxK",    "ship_free": 14,    "images": "RwigjIMUilSKwDjNdBkDGbcYt",    "desc_images": "UfuReUyAhYisrqbPRWqdeqXyB",    "goods_front_image": "pHwYDwfNLIPEERggxpgspRfLP",    "is_new": 13,    "is_hot": 70}
 
 
 

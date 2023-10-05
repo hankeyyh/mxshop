@@ -35,11 +35,11 @@ CREATE TABLE `category` (
   KEY `category_parent_category_id` (`parent_category_id`) USING BTREE,
   KEY `category_url` (`url`) USING BTREE,
   CONSTRAINT `category_ibfk_1` FOREIGN KEY (`parent_category_id`) REFERENCES `category` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=238010 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC
+) ENGINE=InnoDB AUTO_INCREMENT=238023 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC
 
 JSON Sample
 -------------------------------------
-{    "id": 37,    "name": "EcKgYtBcFKwpFILhmnhJOMqBJ",    "parent_category_id": 81,    "level": 97,    "is_tab": 26,    "url": "PVrodPKckvQvLblPJTsGjxywk",    "add_time": "2028-07-18T08:25:03.041145319+08:00",    "is_deleted": 37,    "update_time": "2176-04-05T04:30:15.845477317+08:00"}
+{    "id": 82,    "name": "jXiaZgRFnfeBTeSPLaQDvLyQJ",    "parent_category_id": 51,    "level": 50,    "is_tab": 44,    "url": "QADqRlqDeBhvDMqlFePYvkRkA",    "add_time": "2248-02-16T13:19:09.595912119+08:00",    "is_deleted": 35,    "update_time": "2024-05-31T23:33:04.421092795+08:00"}
 
 
 

@@ -24,9 +24,9 @@ CREATE TABLE `goods_category_brand` (
   `id` int NOT NULL AUTO_INCREMENT,
   `category_id` int NOT NULL,
   `brand_id` int NOT NULL,
-  `add_time` datetime NOT NULL,
-  `is_deleted` tinyint(1) DEFAULT '0',
-  `update_time` datetime NOT NULL,
+  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `goodscategorybrand_category_id_brand_id` (`category_id`,`brand_id`) USING BTREE,
   KEY `goodscategorybrand_category_id` (`category_id`) USING BTREE,
@@ -37,7 +37,7 @@ CREATE TABLE `goods_category_brand` (
 
 JSON Sample
 -------------------------------------
-{    "id": 86,    "category_id": 96,    "brand_id": 9,    "add_time": "2305-05-07T18:16:54.052412591+08:00",    "is_deleted": 92,    "update_time": "2193-11-02T18:53:47.564172642+08:00"}
+{    "id": 67,    "category_id": 44,    "brand_id": 93,    "add_time": "2231-11-06T01:12:51.453016987+08:00",    "is_deleted": 27,    "update_time": "2105-11-03T11:44:59.325665073+08:00"}
 
 
 
@@ -51,12 +51,12 @@ type GoodsCategoryBrand struct {
 	CategoryID int32 `gorm:"column:category_id;type:int;"`
 	//[ 2] brand_id                                       int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: []
 	BrandID int32 `gorm:"column:brand_id;type:int;"`
-	//[ 3] add_time                                       datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	AddTime time.Time `gorm:"column:add_time;type:datetime;"`
-	//[ 4] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
-	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;default:0;"`
-	//[ 5] update_time                                    datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	UpdateTime time.Time `gorm:"column:update_time;type:datetime;"`
+	//[ 3] add_time                                       timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	AddTime time.Time `gorm:"column:add_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
+	//[ 4] is_deleted                                     tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
+	IsDeleted int32 `gorm:"column:is_deleted;type:tinyint;default:0;"`
+	//[ 5] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	UpdateTime time.Time `gorm:"column:update_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 }
 
 var goods_category_brandTableInfo = &TableInfo{
@@ -132,18 +132,18 @@ var goods_category_brandTableInfo = &TableInfo{
 			Comment:            ``,
 			Notes:              ``,
 			Nullable:           false,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "AddTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "add_time",
 			ProtobufFieldName:  "add_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        4,
 		},
 
@@ -152,7 +152,7 @@ var goods_category_brandTableInfo = &TableInfo{
 			Name:               "is_deleted",
 			Comment:            ``,
 			Notes:              ``,
-			Nullable:           true,
+			Nullable:           false,
 			DatabaseTypeName:   "tinyint",
 			DatabaseTypePretty: "tinyint",
 			IsPrimaryKey:       false,
@@ -161,7 +161,7 @@ var goods_category_brandTableInfo = &TableInfo{
 			ColumnType:         "tinyint",
 			ColumnLength:       -1,
 			GoFieldName:        "IsDeleted",
-			GoFieldType:        "sql.NullInt64",
+			GoFieldType:        "int32",
 			JSONFieldName:      "is_deleted",
 			ProtobufFieldName:  "is_deleted",
 			ProtobufType:       "int32",
@@ -174,18 +174,18 @@ var goods_category_brandTableInfo = &TableInfo{
 			Comment:            ``,
 			Notes:              ``,
 			Nullable:           false,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "UpdateTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "update_time",
 			ProtobufFieldName:  "update_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        6,
 		},
 	},

@@ -48,6 +48,23 @@ func convertToCategoryListItemForJson(category *model.Category) *CategoryListIte
 	}
 }
 
+func convertToBrandInfoResponse(brand *model.Brands) *proto.BrandInfoResponse {
+	return &proto.BrandInfoResponse{
+		Id:   brand.ID,
+		Name: brand.Name,
+		Logo: brand.Logo.String,
+	}
+}
+
+func convertToBannerResponse(banner *model.Banner) *proto.BannerResponse {
+	return &proto.BannerResponse{
+		Id:    banner.ID,
+		Index: banner.Index,
+		Image: banner.Image,
+		Url:   banner.URL,
+	}
+}
+
 func convertToGoodsInfoResponse(goods *model.Goods, category *model.Category, brand *model.Brands) *proto.GoodsInfoResponse {
 	rsp := &proto.GoodsInfoResponse{
 		Id:              goods.ID,
@@ -164,7 +181,7 @@ func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterR
 		return nil, err
 	}
 	rsp := new(proto.GoodsListResponse)
-	rsp.Total = int32(total)
+	rsp.Total = total
 	rsp.Data = goodsInfoResponseList
 	return rsp, nil
 }
@@ -182,7 +199,7 @@ func (g GoodsService) BatchGetGoods(ctx context.Context, request *proto.BatchGoo
 	}
 
 	rsp := new(proto.GoodsListResponse)
-	rsp.Total = int32(len(goodsList))
+	rsp.Total = int64(len(goodsList))
 	rsp.Data = goodsInfoResponseList
 	return rsp, nil
 }
@@ -437,7 +454,7 @@ func (g GoodsService) GetSubCategory(ctx context.Context, request *proto.Categor
 	}
 
 	rsp := &proto.SubCategoryListResponse{
-		Total:        int32(len(subCategoryPbList)),
+		Total:        int64(len(subCategoryPbList)),
 		Info:         categoryPb,
 		SubCategorys: subCategoryPbList,
 	}
@@ -524,43 +541,146 @@ func (g GoodsService) UpdateCategory(ctx context.Context, request *proto.Categor
 }
 
 func (g GoodsService) BrandList(ctx context.Context, request *proto.BrandFilterRequest) (*proto.BrandListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	page := request.GetPages()
+	pageSize := request.GetPagePerNums()
+
+	brandList, cnt, err := dao.GetAllBrands(ctx, int(page), int(pageSize), "")
+	if err != nil {
+		log.Error("dao.GetAllBrands fail", log.Any("err", err))
+		return nil, err
+	}
+
+	brandPbList := make([]*proto.BrandInfoResponse, 0, len(brandList))
+	for _, brand := range brandList {
+		brandPbList = append(brandPbList, convertToBrandInfoResponse(brand))
+	}
+	rsp := &proto.BrandListResponse{
+		Total: cnt,
+		Data:  brandPbList,
+	}
+	return rsp, nil
 }
 
 func (g GoodsService) CreateBrand(ctx context.Context, request *proto.BrandRequest) (*proto.BrandInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	name := request.GetName()
+	logo := request.GetLogo()
+	brand, err := dao.GetBrandsByName(ctx, name)
+	if !errors.Is(err, dao.ErrNotFound) {
+		if err != nil { // 意外错误
+			return nil, err
+		}
+		return convertToBrandInfoResponse(brand), nil
+	}
+
+	brand = &model.Brands{
+		Name: name,
+		Logo: sql.NullString{String: logo, Valid: true},
+	}
+
+	result, _, err := dao.AddBrands(ctx, brand)
+	if err != nil {
+		log.Error("dao.Add.Brands fail", log.Any("err", err))
+		return nil, err
+	}
+	return convertToBrandInfoResponse(result), nil
 }
 
 func (g GoodsService) DeleteBrand(ctx context.Context, request *proto.BrandRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	_, err := dao.DeleteBrands(ctx, id)
+	if err != nil {
+		log.Error("dao.Add.DeleteBrands fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) UpdateBrand(ctx context.Context, request *proto.BrandRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	brand, err := dao.GetBrands(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if request.GetName() != "" {
+		brand.Name = request.GetName()
+	}
+	if request.GetLogo() != "" {
+		brand.Logo = sql.NullString{String: request.GetLogo(), Valid: true}
+	}
+
+	_, _, err = dao.UpdateBrands(ctx, id, brand)
+	if err != nil {
+		log.Error("dao.UpdateBrands fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) BannerList(ctx context.Context, empty *emptypb.Empty) (*proto.BannerListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	bannerList, cnt, err := dao.GetAllBanner(ctx, 0, 0, "")
+	if err != nil {
+		log.Error("dao.GetAllBanner fail", log.Any("err", err))
+		return nil, err
+	}
+	bannerPbList := make([]*proto.BannerResponse, 0, len(bannerList))
+	for _, banner := range bannerList {
+		bannerPbList = append(bannerPbList, convertToBannerResponse(banner))
+	}
+
+	rsp := &proto.BannerListResponse{
+		Total: cnt,
+		Data:  bannerPbList,
+	}
+	return rsp, nil
 }
 
 func (g GoodsService) CreateBanner(ctx context.Context, request *proto.BannerRequest) (*proto.BannerResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	banner := &model.Banner{
+		Image: request.GetImage(),
+		URL:   request.GetUrl(),
+		Index: request.GetIndex(),
+	}
+	result, _, err := dao.AddBanner(ctx, banner)
+	if err != nil {
+		log.Error("dao.AddBanner fail", log.Any("err", err))
+		return nil, err
+	}
+	return convertToBannerResponse(result), nil
 }
 
 func (g GoodsService) DeleteBanner(ctx context.Context, request *proto.BannerRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	_, err := dao.DeleteBanner(ctx, id)
+	if err != nil {
+		log.Error("dao.DeleteBanner", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) UpdateBanner(ctx context.Context, request *proto.BannerRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	banner, err := dao.GetBanner(ctx, id)
+	if err != nil {
+		log.Error("dao.GetBanner fail", log.Any("err", err))
+		return nil, err
+	}
+	if request.GetImage() != "" {
+		banner.Image = request.GetImage()
+	}
+	if request.GetUrl() != "" {
+		banner.URL = request.GetUrl()
+	}
+	if request.GetIndex() != 0 {
+		banner.Index = request.GetIndex()
+	}
+
+	_, _, err = dao.UpdateBanner(ctx, id, banner)
+	if err != nil {
+		log.Error("dao.UpdateBanner fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) CategoryBrandList(ctx context.Context, request *proto.CategoryBrandFilterRequest) (*proto.CategoryBrandListResponse, error) {

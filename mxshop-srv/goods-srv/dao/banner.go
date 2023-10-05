@@ -29,8 +29,6 @@ func GetAllBanner(ctx context.Context, page, pagesize int, order string) (result
 	if page > 0 {
 		offset := (page - 1) * pagesize
 		resultOrm = resultOrm.Offset(offset).Limit(pagesize)
-	} else {
-		resultOrm = resultOrm.Limit(pagesize)
 	}
 
 	if order != "" {

@@ -80,7 +80,7 @@ message CategoryListResponse {
 }
 
 message SubCategoryListResponse {
-    int32 total = 1;
+    int64 total = 1;
     CategoryInfoResponse info = 2;
     repeated CategoryInfoResponse subCategorys = 3;
 }
@@ -140,17 +140,17 @@ message BrandInfoResponse {
 }
 
 message BrandListResponse {
-    int32 total = 1;
+    int64 total = 1;
     repeated BrandInfoResponse data = 2;
 }
 
 message BannerListResponse {
-    int32 total = 1;
+    int64 total = 1;
     repeated BannerResponse data = 2;
 }
 
 message CategoryBrandListResponse {
-    int32 total = 1;
+    int64 total = 1;
     repeated CategoryBrandResponse data = 2;
 }
 
@@ -248,6 +248,6 @@ message GoodsInfoResponse {
 }
 
 message GoodsListResponse {
-    int32 total = 1;
+    int64 total = 1;
     repeated GoodsInfoResponse data = 2;
 }

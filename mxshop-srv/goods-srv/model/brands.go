@@ -24,16 +24,16 @@ CREATE TABLE `brands` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `logo` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `add_time` datetime NOT NULL,
+  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
-  `update_time` datetime NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `brands_name` (`name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC
 
 JSON Sample
 -------------------------------------
-{    "id": 3,    "name": "TkNJALYtWsPCTVDkwDTUPKbZs",    "logo": "ubkncslENgHYqGAHAnssDDppI",    "add_time": "2259-11-17T18:36:45.393889001+08:00",    "is_deleted": 83,    "update_time": "2040-01-07T12:25:56.474103867+08:00"}
+{    "id": 5,    "name": "MWoiBLkPQHSJTGnvxleEgXQpf",    "logo": "iYnnQVHevjqFohVHUbbmTWSgn",    "add_time": "2210-12-11T12:31:35.709729936+08:00",    "is_deleted": 71,    "update_time": "2097-10-29T02:33:11.737939831+08:00"}
 
 
 
@@ -47,12 +47,12 @@ type Brands struct {
 	Name string `gorm:"column:name;type:varchar;size:50;"`
 	//[ 2] logo                                           varchar(200)         null: true   primary: false  isArray: false  auto: false  col: varchar         len: 200     default: []
 	Logo sql.NullString `gorm:"column:logo;type:varchar;size:200;"`
-	//[ 3] add_time                                       datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	AddTime time.Time `gorm:"column:add_time;type:datetime;"`
+	//[ 3] add_time                                       timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	AddTime time.Time `gorm:"column:add_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 	//[ 4] is_deleted                                     tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
 	IsDeleted int32 `gorm:"column:is_deleted;type:tinyint;default:0;"`
-	//[ 5] update_time                                    datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	UpdateTime time.Time `gorm:"column:update_time;type:datetime;"`
+	//[ 5] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	UpdateTime time.Time `gorm:"column:update_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 }
 
 var brandsTableInfo = &TableInfo{
@@ -128,18 +128,18 @@ var brandsTableInfo = &TableInfo{
 			Comment:            ``,
 			Notes:              ``,
 			Nullable:           false,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "AddTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "add_time",
 			ProtobufFieldName:  "add_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        4,
 		},
 
@@ -170,18 +170,18 @@ var brandsTableInfo = &TableInfo{
 			Comment:            ``,
 			Notes:              ``,
 			Nullable:           false,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "UpdateTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "update_time",
 			ProtobufFieldName:  "update_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        6,
 		},
 	},
