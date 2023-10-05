@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"testing"
 )
 
@@ -101,6 +102,14 @@ func TestGetGoodsDetail(t *testing.T) {
 		Id: 788,
 	}
 	rsp, err := client.GetGoodsDetail(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+}
+
+func TestGetAllCategorysList(t *testing.T) {
+	rsp, err := client.GetAllCategorysList(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		panic(err)
 	}

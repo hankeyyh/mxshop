@@ -74,7 +74,7 @@ message CategoryInfoResponse {
 }
 
 message CategoryListResponse {
-    int32 total = 1;
+    int64 total = 1;
     repeated CategoryInfoResponse data = 2;
     string jsonData = 3;
 }

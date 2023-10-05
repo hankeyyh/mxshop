@@ -29,8 +29,6 @@ func GetAllCategory(ctx context.Context, page, pagesize int, order string) (resu
 	if page > 0 {
 		offset := (page - 1) * pagesize
 		resultOrm = resultOrm.Offset(offset).Limit(pagesize)
-	} else {
-		resultOrm = resultOrm.Limit(pagesize)
 	}
 
 	if order != "" {

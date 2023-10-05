@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/dao"
 	"github.com/hankeyyh/mxshop/mxshop-srv/goods-srv/log"
@@ -13,6 +14,36 @@ import (
 
 type GoodsService struct {
 	proto.UnimplementedGoodsServer
+}
+
+type CategoryListItemForJson struct {
+	Id          int32                      `json:"id"`
+	Name        string                     `json:"name"`
+	Level       int32                      `json:"level"`
+	ParentId    int32                      `json:"parent_id"`
+	IsTab       int32                      `json:"is_tab"`
+	SubCategory []*CategoryListItemForJson `json:"sub_category"`
+}
+
+func convertToCategoryInfoResponse(category *model.Category) *proto.CategoryInfoResponse {
+	rsp := &proto.CategoryInfoResponse{
+		Id:             category.ID,
+		Name:           category.Name,
+		ParentCategory: int32(category.ParentCategoryID.Int64),
+		Level:          category.Level,
+		IsTab:          category.IsTab == 1,
+	}
+	return rsp
+}
+
+func convertToCategoryListItemForJson(category *model.Category) *CategoryListItemForJson {
+	return &CategoryListItemForJson{
+		Id:       category.ID,
+		Name:     category.Name,
+		Level:    category.Level,
+		ParentId: int32(category.ParentCategoryID.Int64),
+		IsTab:    category.IsTab,
+	}
 }
 
 func convertToGoodsInfoResponse(goods *model.Goods, category *model.Category, brand *model.Brands) *proto.GoodsInfoResponse {
@@ -327,8 +358,56 @@ func (g GoodsService) GetGoodsDetail(ctx context.Context, request *proto.GoodInf
 }
 
 func (g GoodsService) GetAllCategorysList(ctx context.Context, empty *emptypb.Empty) (*proto.CategoryListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 找出所有分类
+	categoryList, cnt, err := dao.GetAllCategory(ctx, 0, 0, "")
+	if err != nil {
+		return nil, err
+	}
+
+	// 将这些分类放入rsp.data
+	data := make([]*proto.CategoryInfoResponse, 0, len(categoryList))
+	level1Map := make(map[int32]*CategoryListItemForJson)
+	level2Map := make(map[int32]*CategoryListItemForJson)
+	level3List := make([]*CategoryListItemForJson, 0)
+	for _, category := range categoryList {
+		data = append(data, convertToCategoryInfoResponse(category))
+		if category.Level == 1 {
+			level1Map[category.ID] = convertToCategoryListItemForJson(category)
+		} else if category.Level == 2 {
+			level2Map[category.ID] = convertToCategoryListItemForJson(category)
+		} else if category.Level == 3 {
+			level3List = append(level3List, convertToCategoryListItemForJson(category))
+		}
+	}
+
+	// 整理各个level，将一级，二级，三级分类依此嵌套起来
+	for _, category3 := range level3List {
+		if parentCategory, ok := level2Map[category3.ParentId]; ok {
+			parentCategory.SubCategory = append(parentCategory.SubCategory, category3)
+		}
+	}
+	for _, category2 := range level2Map {
+		if parentCategory, ok := level1Map[category2.ParentId]; ok {
+			parentCategory.SubCategory = append(parentCategory.SubCategory, category2)
+		}
+	}
+	level1List := make([]*CategoryListItemForJson, 0, len(level1Map))
+	for _, v := range level1Map {
+		level1List = append(level1List, v)
+	}
+	jsonData, err := json.Marshal(level1List)
+	if err != nil {
+		return nil, err
+	}
+
+	// 组装数据
+	rsp := &proto.CategoryListResponse{
+		Total:    cnt,
+		Data:     data,
+		JsonData: string(jsonData),
+	}
+
+	return rsp, nil
 }
 
 func (g GoodsService) GetSubCategory(ctx context.Context, request *proto.CategoryListRequest) (*proto.SubCategoryListResponse, error) {
