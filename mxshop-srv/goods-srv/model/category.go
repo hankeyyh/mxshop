@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"gorm.io/gorm"
 	"time"
 
 	"github.com/guregu/null"
@@ -28,9 +27,9 @@ CREATE TABLE `category` (
   `level` int NOT NULL,
   `is_tab` tinyint(1) NOT NULL,
   `url` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `add_time` datetime DEFAULT NULL,
-  `is_deleted` tinyint DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL,
+  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_deleted` tinyint NOT NULL DEFAULT '0',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `category_name` (`name`) USING BTREE,
   KEY `category_parent_category_id` (`parent_category_id`) USING BTREE,
@@ -40,7 +39,7 @@ CREATE TABLE `category` (
 
 JSON Sample
 -------------------------------------
-{    "id": 74,    "name": "dfoVpFSFNcIAQxCspBxatZeZX",    "parent_category_id": 88,    "level": 93,    "is_tab": 1,    "url": "QPkbuWRFDlCJKlWLAmUraNCps",    "add_time": "2046-06-10T07:21:44.163831375+08:00",    "is_deleted": 72,    "update_time": "2160-08-16T17:14:27.177078137+08:00"}
+{    "id": 37,    "name": "EcKgYtBcFKwpFILhmnhJOMqBJ",    "parent_category_id": 81,    "level": 97,    "is_tab": 26,    "url": "PVrodPKckvQvLblPJTsGjxywk",    "add_time": "2028-07-18T08:25:03.041145319+08:00",    "is_deleted": 37,    "update_time": "2176-04-05T04:30:15.845477317+08:00"}
 
 
 
@@ -60,12 +59,12 @@ type Category struct {
 	IsTab int32 `gorm:"column:is_tab;type:tinyint;"`
 	//[ 5] url                                            varchar(300)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 300     default: []
 	URL string `gorm:"column:url;type:varchar;size:300;"`
-	//[ 6] add_time                                       datetime             null: true   primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	AddTime time.Time `gorm:"column:add_time;type:datetime;"`
-	//[ 7] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: []
-	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;"`
-	//[ 8] update_time                                    datetime             null: true   primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
-	UpdateTime time.Time `gorm:"column:update_time;type:datetime;"`
+	//[ 6] add_time                                       timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	AddTime time.Time `gorm:"column:add_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
+	//[ 7] is_deleted                                     tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
+	IsDeleted int32 `gorm:"column:is_deleted;type:tinyint;default:0;"`
+	//[ 8] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	UpdateTime time.Time `gorm:"column:update_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 }
 
 var categoryTableInfo = &TableInfo{
@@ -203,19 +202,19 @@ var categoryTableInfo = &TableInfo{
 			Name:               "add_time",
 			Comment:            ``,
 			Notes:              ``,
-			Nullable:           true,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			Nullable:           false,
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "AddTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "add_time",
 			ProtobufFieldName:  "add_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        7,
 		},
 
@@ -224,7 +223,7 @@ var categoryTableInfo = &TableInfo{
 			Name:               "is_deleted",
 			Comment:            ``,
 			Notes:              ``,
-			Nullable:           true,
+			Nullable:           false,
 			DatabaseTypeName:   "tinyint",
 			DatabaseTypePretty: "tinyint",
 			IsPrimaryKey:       false,
@@ -233,7 +232,7 @@ var categoryTableInfo = &TableInfo{
 			ColumnType:         "tinyint",
 			ColumnLength:       -1,
 			GoFieldName:        "IsDeleted",
-			GoFieldType:        "sql.NullInt64",
+			GoFieldType:        "int32",
 			JSONFieldName:      "is_deleted",
 			ProtobufFieldName:  "is_deleted",
 			ProtobufType:       "int32",
@@ -245,19 +244,19 @@ var categoryTableInfo = &TableInfo{
 			Name:               "update_time",
 			Comment:            ``,
 			Notes:              ``,
-			Nullable:           true,
-			DatabaseTypeName:   "datetime",
-			DatabaseTypePretty: "datetime",
+			Nullable:           false,
+			DatabaseTypeName:   "timestamp",
+			DatabaseTypePretty: "timestamp",
 			IsPrimaryKey:       false,
 			IsAutoIncrement:    false,
 			IsArray:            false,
-			ColumnType:         "datetime",
+			ColumnType:         "timestamp",
 			ColumnLength:       -1,
 			GoFieldName:        "UpdateTime",
 			GoFieldType:        "time.Time",
 			JSONFieldName:      "update_time",
 			ProtobufFieldName:  "update_time",
-			ProtobufType:       "google.protobuf.Timestamp",
+			ProtobufType:       "uint64",
 			ProtobufPos:        9,
 		},
 	},
@@ -269,7 +268,7 @@ func (c *Category) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *Category) BeforeSave(*gorm.DB) error {
+func (c *Category) BeforeSave() error {
 	return nil
 }
 

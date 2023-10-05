@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"gorm.io/gorm"
 	"time"
 
 	"github.com/guregu/null"
@@ -26,7 +25,7 @@ CREATE TABLE `brands` (
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `logo` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `add_time` datetime NOT NULL,
-  `is_deleted` tinyint(1) DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `brands_name` (`name`) USING BTREE
@@ -34,7 +33,7 @@ CREATE TABLE `brands` (
 
 JSON Sample
 -------------------------------------
-{    "id": 32,    "name": "TKftQBxnvLPQEDjJoAPKwiGYV",    "logo": "uOIFKsDdWulMURkETIrrLafWF",    "add_time": "2055-08-24T19:01:22.145798616+08:00",    "is_deleted": 16,    "update_time": "2207-08-05T22:11:20.290108692+08:00"}
+{    "id": 3,    "name": "TkNJALYtWsPCTVDkwDTUPKbZs",    "logo": "ubkncslENgHYqGAHAnssDDppI",    "add_time": "2259-11-17T18:36:45.393889001+08:00",    "is_deleted": 83,    "update_time": "2040-01-07T12:25:56.474103867+08:00"}
 
 
 
@@ -50,8 +49,8 @@ type Brands struct {
 	Logo sql.NullString `gorm:"column:logo;type:varchar;size:200;"`
 	//[ 3] add_time                                       datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
 	AddTime time.Time `gorm:"column:add_time;type:datetime;"`
-	//[ 4] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: []
-	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;"`
+	//[ 4] is_deleted                                     tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
+	IsDeleted int32 `gorm:"column:is_deleted;type:tinyint;default:0;"`
 	//[ 5] update_time                                    datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
 	UpdateTime time.Time `gorm:"column:update_time;type:datetime;"`
 }
@@ -149,7 +148,7 @@ var brandsTableInfo = &TableInfo{
 			Name:               "is_deleted",
 			Comment:            ``,
 			Notes:              ``,
-			Nullable:           true,
+			Nullable:           false,
 			DatabaseTypeName:   "tinyint",
 			DatabaseTypePretty: "tinyint",
 			IsPrimaryKey:       false,
@@ -158,7 +157,7 @@ var brandsTableInfo = &TableInfo{
 			ColumnType:         "tinyint",
 			ColumnLength:       -1,
 			GoFieldName:        "IsDeleted",
-			GoFieldType:        "sql.NullInt64",
+			GoFieldType:        "int32",
 			JSONFieldName:      "is_deleted",
 			ProtobufFieldName:  "is_deleted",
 			ProtobufType:       "int32",
@@ -194,7 +193,7 @@ func (b *Brands) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (b *Brands) BeforeSave(*gorm.DB) error {
+func (b *Brands) BeforeSave() error {
 	return nil
 }
 

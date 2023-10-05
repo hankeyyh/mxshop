@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -445,18 +446,81 @@ func (g GoodsService) GetSubCategory(ctx context.Context, request *proto.Categor
 }
 
 func (g GoodsService) CreateCategory(ctx context.Context, request *proto.CategoryInfoRequest) (*proto.CategoryInfoResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	var isTab int32 = 0
+	if request.GetIsTab() {
+		isTab = 1
+	}
+	var parentCategoryId int32 = 0
+	valid := false
+	if request.GetParentCategory() != 0 {
+		parentCategoryId = request.GetParentCategory()
+		valid = true
+	}
+
+	category := &model.Category{
+		Name:             request.GetName(),
+		ParentCategoryID: sql.NullInt64{Int64: int64(parentCategoryId), Valid: valid},
+		Level:            request.GetLevel(),
+		IsTab:            isTab,
+		URL:              "",
+	}
+	result, _, err := dao.AddCategory(ctx, category)
+	if err != nil {
+		log.Error("dao.AddCategory fail", log.Any("err", err))
+		return nil, err
+	}
+	rsp := &proto.CategoryInfoResponse{
+		Id:             result.ID,
+		Name:           result.Name,
+		ParentCategory: int32(result.ParentCategoryID.Int64),
+		Level:          result.Level,
+		IsTab:          result.IsTab == 1,
+	}
+	return rsp, nil
 }
 
 func (g GoodsService) DeleteCategory(ctx context.Context, request *proto.DeleteCategoryRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	_, err := dao.DeleteCategory(ctx, id)
+	if err != nil {
+		log.Error("dao.DeleteCategory fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) UpdateCategory(ctx context.Context, request *proto.CategoryInfoRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	category, err := dao.GetCategory(ctx, id)
+	if errors.Is(err, dao.ErrNotFound) {
+		return nil, err
+	}
+	if err != nil {
+		log.Error("dao.GetCategory fail", log.Any("err", err))
+		return nil, err
+	}
+
+	if request.Name != "" {
+		category.Name = request.Name
+	}
+	if request.ParentCategory != 0 {
+		category.ParentCategoryID = sql.NullInt64{Int64: int64(request.ParentCategory), Valid: true}
+	}
+	if request.Level != 0 {
+		category.Level = request.Level
+	}
+	var isTab int32 = 0
+	if request.IsTab {
+		isTab = 1
+	}
+	category.IsTab = isTab
+	_, _, err = dao.UpdateCategory(ctx, id, category)
+	if err != nil {
+		log.Error("dao.UpdateCategory fail", log.Any("err", err))
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) BrandList(ctx context.Context, request *proto.BrandFilterRequest) (*proto.BrandListResponse, error) {

@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"gorm.io/gorm"
 	"time"
 
 	"github.com/guregu/null"
@@ -24,7 +23,7 @@ DB Table Details
 CREATE TABLE `goods` (
   `id` int NOT NULL AUTO_INCREMENT,
   `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_deleted` tinyint(1) DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `category_id` int NOT NULL,
   `brand_id` int NOT NULL,
@@ -49,11 +48,11 @@ CREATE TABLE `goods` (
   KEY `goods2_brand_id` (`brand_id`) USING BTREE,
   CONSTRAINT `goods_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `goods_ibfk_2` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=841 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC
+) ENGINE=InnoDB AUTO_INCREMENT=842 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC
 
 JSON Sample
 -------------------------------------
-{    "id": 92,    "add_time": "2178-08-10T22:23:44.133045991+08:00",    "is_deleted": 15,    "update_time": "2091-06-06T23:20:51.787692634+08:00",    "category_id": 51,    "brand_id": 23,    "on_sale": 83,    "goods_sn": "uTBuXyRYYtKwpYTCZVZJOYiVW",    "name": "AlsLMiPNCwPTUWOiBieigaZhg",    "click_num": 82,    "sold_num": 30,    "fav_num": 29,    "stocks": 46,    "market_price": 0.18026653,    "shop_price": 0.8860353,    "goods_brief": "BaFwYxOqRJAIYhcmHMQjirREf",    "ship_free": 86,    "images": "cTjYyZTTrZTpIwjhyETeKXvAH",    "desc_images": "gENTSCvshNmMIOHVJQpSvfHOU",    "goods_front_image": "fdWxZuuiiamQfhpSUhEcIuQML",    "is_new": 57,    "is_hot": 24}
+{    "id": 51,    "add_time": "2218-12-08T03:03:18.860353452+08:00",    "is_deleted": 51,    "update_time": "2074-11-06T03:05:43.129756482+08:00",    "category_id": 89,    "brand_id": 98,    "on_sale": 98,    "goods_sn": "LFtqQSbMwoLZfbFlfBUYCrDOx",    "name": "eCGsBjhlsTCgCFEecQqgWaLOs",    "click_num": 20,    "sold_num": 0,    "fav_num": 99,    "stocks": 62,    "market_price": 0.8300908,    "shop_price": 0.4458649,    "goods_brief": "mHCZvZEkXeesXptOmLbePgeIj",    "ship_free": 38,    "images": "XhJSRucrDHZscuPgxXwICODeP",    "desc_images": "oMXfLEZeesaLWPFmmUukhCnaO",    "goods_front_image": "JvgTLhblRtTGBSAGbebrWEuYL",    "is_new": 23,    "is_hot": 52}
 
 
 
@@ -65,8 +64,8 @@ type Goods struct {
 	ID int32 `gorm:"primary_key;AUTO_INCREMENT;column:id;type:int;"`
 	//[ 1] add_time                                       timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
 	AddTime time.Time `gorm:"column:add_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
-	//[ 2] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: []
-	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;"`
+	//[ 2] is_deleted                                     tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
+	IsDeleted int32 `gorm:"column:is_deleted;type:tinyint;default:0;"`
 	//[ 3] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
 	UpdateTime time.Time `gorm:"column:update_time;type:timestamp;default:CURRENT_TIMESTAMP;"`
 	//[ 4] category_id                                    int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: []
@@ -158,7 +157,7 @@ var goodsTableInfo = &TableInfo{
 			Name:               "is_deleted",
 			Comment:            ``,
 			Notes:              ``,
-			Nullable:           true,
+			Nullable:           false,
 			DatabaseTypeName:   "tinyint",
 			DatabaseTypePretty: "tinyint",
 			IsPrimaryKey:       false,
@@ -167,7 +166,7 @@ var goodsTableInfo = &TableInfo{
 			ColumnType:         "tinyint",
 			ColumnLength:       -1,
 			GoFieldName:        "IsDeleted",
-			GoFieldType:        "sql.NullInt64",
+			GoFieldType:        "int32",
 			JSONFieldName:      "is_deleted",
 			ProtobufFieldName:  "is_deleted",
 			ProtobufType:       "int32",
@@ -581,7 +580,7 @@ func (g *Goods) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (g *Goods) BeforeSave(*gorm.DB) error {
+func (g *Goods) BeforeSave() error {
 	return nil
 }
 

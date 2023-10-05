@@ -126,3 +126,37 @@ func TestGetSubCategory(t *testing.T) {
 	}
 	t.Log(rsp)
 }
+
+func TestCreateAndDeleteCategory(t *testing.T) {
+	req := &proto.CategoryInfoRequest{
+		Name:           "测试分类2级",
+		ParentCategory: 130358,
+		Level:          2,
+		IsTab:          false,
+	}
+	rsp, err := client.CreateCategory(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(rsp)
+
+	upReq := &proto.CategoryInfoRequest{
+		Id:             rsp.GetId(),
+		Name:           "测试分类3级",
+		ParentCategory: 130364,
+		Level:          3,
+		IsTab:          false,
+	}
+	upRsp, err := client.UpdateCategory(context.Background(), upReq)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(upRsp)
+
+	delReq := &proto.DeleteCategoryRequest{Id: rsp.GetId()}
+	delRsp, err := client.DeleteCategory(context.Background(), delReq)
+	if err != nil {
+		panic(delRsp)
+	}
+	t.Log(delRsp)
+}

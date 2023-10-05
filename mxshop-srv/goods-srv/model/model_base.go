@@ -1,9 +1,6 @@
 package model
 
-import (
-	"fmt"
-	"gorm.io/gorm"
-)
+import "fmt"
 
 // Action CRUD actions
 type Action int32
@@ -33,7 +30,11 @@ var (
 func init() {
 	tables = make(map[string]*TableInfo)
 
+	tables["banner"] = bannerTableInfo
+	tables["brands"] = brandsTableInfo
+	tables["category"] = categoryTableInfo
 	tables["goods"] = goodsTableInfo
+	tables["goods_category_brand"] = goods_category_brandTableInfo
 }
 
 // String describe the action
@@ -59,7 +60,7 @@ func (i Action) String() string {
 // Model interface methods for database structs generated
 type Model interface {
 	TableName() string
-	BeforeSave(*gorm.DB) error
+	BeforeSave() error
 	Prepare()
 	Validate(action Action) error
 	TableInfo() *TableInfo

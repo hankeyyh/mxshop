@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"gorm.io/gorm"
 	"time"
 
 	"github.com/guregu/null"
@@ -26,7 +25,7 @@ CREATE TABLE `goods_category_brand` (
   `category_id` int NOT NULL,
   `brand_id` int NOT NULL,
   `add_time` datetime NOT NULL,
-  `is_deleted` tinyint(1) DEFAULT NULL,
+  `is_deleted` tinyint(1) DEFAULT '0',
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `goodscategorybrand_category_id_brand_id` (`category_id`,`brand_id`) USING BTREE,
@@ -38,7 +37,7 @@ CREATE TABLE `goods_category_brand` (
 
 JSON Sample
 -------------------------------------
-{    "id": 12,    "category_id": 52,    "brand_id": 13,    "add_time": "2252-03-11T20:39:00.128265171+08:00",    "is_deleted": 67,    "update_time": "2203-04-05T18:49:17.866700754+08:00"}
+{    "id": 86,    "category_id": 96,    "brand_id": 9,    "add_time": "2305-05-07T18:16:54.052412591+08:00",    "is_deleted": 92,    "update_time": "2193-11-02T18:53:47.564172642+08:00"}
 
 
 
@@ -54,8 +53,8 @@ type GoodsCategoryBrand struct {
 	BrandID int32 `gorm:"column:brand_id;type:int;"`
 	//[ 3] add_time                                       datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
 	AddTime time.Time `gorm:"column:add_time;type:datetime;"`
-	//[ 4] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: []
-	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;"`
+	//[ 4] is_deleted                                     tinyint              null: true   primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
+	IsDeleted sql.NullInt64 `gorm:"column:is_deleted;type:tinyint;default:0;"`
 	//[ 5] update_time                                    datetime             null: false  primary: false  isArray: false  auto: false  col: datetime        len: -1      default: []
 	UpdateTime time.Time `gorm:"column:update_time;type:datetime;"`
 }
@@ -198,7 +197,7 @@ func (g *GoodsCategoryBrand) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (g *GoodsCategoryBrand) BeforeSave(*gorm.DB) error {
+func (g *GoodsCategoryBrand) BeforeSave() error {
 	return nil
 }
 
