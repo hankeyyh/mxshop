@@ -57,6 +57,11 @@ func GetGoodsCategoryBrand(ctx context.Context, argID int32) (record *model.Good
 	return record, nil
 }
 
+func GetGoodsCategoryBrandListByCategoryId(ctx context.Context, categoryId int32) (results []*model.GoodsCategoryBrand, err error) {
+	err = DB.Where("category_id = ? and is_deleted = ?", categoryId, 0).Find(&results).Error
+	return
+}
+
 // AddGoodsCategoryBrand is a function to add a single record to goods_category_brand table in the mxshop_goods_srv database
 // error - ErrInsertFailed, db save call failed
 func AddGoodsCategoryBrand(ctx context.Context, record *model.GoodsCategoryBrand) (result *model.GoodsCategoryBrand, RowsAffected int64, err error) {

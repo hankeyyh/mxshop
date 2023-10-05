@@ -27,6 +27,15 @@ type CategoryListItemForJson struct {
 	SubCategory []*CategoryListItemForJson `json:"sub_category"`
 }
 
+func convertToCategoryBrandResponse(gb *model.GoodsCategoryBrand, category *model.Category, brand *model.Brands) *proto.CategoryBrandResponse {
+	rsp := &proto.CategoryBrandResponse{
+		Id:       gb.ID,
+		Category: convertToCategoryInfoResponse(category),
+		Brand:    convertToBrandInfoResponse(brand),
+	}
+	return rsp
+}
+
 func convertToCategoryInfoResponse(category *model.Category) *proto.CategoryInfoResponse {
 	rsp := &proto.CategoryInfoResponse{
 		Id:             category.ID,
@@ -111,7 +120,7 @@ func (g GoodsService) getGoodsInfoResponse(ctx context.Context, goods *model.Goo
 	return convertToGoodsInfoResponse(goods, category, brand), nil
 }
 
-func (g GoodsService) getGoodsListResponse(ctx context.Context, goodsList []*model.Goods) ([]*proto.GoodsInfoResponse, error) {
+func (g GoodsService) getGoodsInfoResponseList(ctx context.Context, goodsList []*model.Goods) ([]*proto.GoodsInfoResponse, error) {
 	categoryIdList := make([]int32, 0)
 	brandIdList := make([]int32, 0)
 	for _, goods := range goodsList {
@@ -146,6 +155,43 @@ func (g GoodsService) getGoodsListResponse(ctx context.Context, goodsList []*mod
 	return data, nil
 }
 
+func (g GoodsService) getCategoryBrandResponseList(ctx context.Context, goodsCategoryBrandList []*model.GoodsCategoryBrand) ([]*proto.CategoryBrandResponse, error) {
+	categoryIdList := make([]int32, 0)
+	brandIdList := make([]int32, 0)
+	for _, item := range goodsCategoryBrandList {
+		categoryIdList = append(categoryIdList, item.CategoryID)
+		brandIdList = append(brandIdList, item.BrandID)
+	}
+
+	// 分类列表
+	categoryList, err := dao.GetCategoryList(ctx, categoryIdList)
+	if err != nil {
+		return nil, err
+	}
+	// 品牌列表
+	brandList, err := dao.GetBrandsList(ctx, brandIdList)
+	if err != nil {
+		return nil, err
+	}
+
+	var categoryMap = make(map[int32]*model.Category)
+	var brandsMap = make(map[int32]*model.Brands)
+	for _, category := range categoryList {
+		categoryMap[category.ID] = category
+	}
+	for _, brands := range brandList {
+		brandsMap[brands.ID] = brands
+	}
+
+	// 结果
+	data := make([]*proto.CategoryBrandResponse, 0, len(goodsCategoryBrandList))
+	for _, item := range goodsCategoryBrandList {
+		data = append(data, convertToCategoryBrandResponse(item, categoryMap[item.CategoryID], brandsMap[item.BrandID]))
+	}
+
+	return data, nil
+}
+
 func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterRequest) (*proto.GoodsListResponse, error) {
 	whereCond := dao.GoodsWhere{
 		PriceMin:    request.GetPriceMin(),
@@ -176,7 +222,7 @@ func (g GoodsService) GoodsList(ctx context.Context, request *proto.GoodsFilterR
 		return nil, err
 	}
 	// goods model list -> goods pb list
-	goodsInfoResponseList, err := g.getGoodsListResponse(ctx, goodsList)
+	goodsInfoResponseList, err := g.getGoodsInfoResponseList(ctx, goodsList)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +239,7 @@ func (g GoodsService) BatchGetGoods(ctx context.Context, request *proto.BatchGoo
 		return nil, err
 	}
 	// goods model list -> goods pb list
-	goodsInfoResponseList, err := g.getGoodsListResponse(ctx, goodsList)
+	goodsInfoResponseList, err := g.getGoodsInfoResponseList(ctx, goodsList)
 	if err != nil {
 		return nil, err
 	}
@@ -684,28 +730,119 @@ func (g GoodsService) UpdateBanner(ctx context.Context, request *proto.BannerReq
 }
 
 func (g GoodsService) CategoryBrandList(ctx context.Context, request *proto.CategoryBrandFilterRequest) (*proto.CategoryBrandListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	page := request.GetPages()
+	pageSize := request.GetPagePerNums()
+
+	cbList, cnt, err := dao.GetAllGoodsCategoryBrand(ctx, int(page), int(pageSize), "")
+	if err != nil {
+		log.Error("dao.GetAllGoodsCategoryBrand fail", log.Any("err", err))
+		return nil, err
+	}
+
+	cbPbList, err := g.getCategoryBrandResponseList(ctx, cbList)
+	if err != nil {
+		log.Error("g.getCategoryBrandResponseList fail", log.Any("err", err))
+		return nil, err
+	}
+
+	rsp := &proto.CategoryBrandListResponse{
+		Total: cnt,
+		Data:  cbPbList,
+	}
+	return rsp, nil
 }
 
 func (g GoodsService) GetCategoryBrandList(ctx context.Context, request *proto.CategoryInfoRequest) (*proto.BrandListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	categoryId := request.GetId()
+
+	// 获取goodsCategoryBrand 列表
+	cbList, err := dao.GetGoodsCategoryBrandListByCategoryId(ctx, categoryId)
+	if err != nil {
+		log.Error("dao.GetGoodsCategoryBrandListByCategoryId fail", log.Any("err", err))
+		return nil, err
+	}
+
+	// 获取brand列表
+	brandIdList := make([]int32, 0, len(cbList))
+	for _, cb := range cbList {
+		brandIdList = append(brandIdList, cb.BrandID)
+	}
+
+	brandList, err := dao.GetBrandsList(ctx, brandIdList)
+	if err != nil {
+		log.Error("dao.GetBrandsList fail", log.Any("err", err))
+		return nil, err
+	}
+
+	// 组装数据
+	brandPbList := make([]*proto.BrandInfoResponse, 0, len(brandList))
+	for _, brand := range brandList {
+		brandPbList = append(brandPbList, convertToBrandInfoResponse(brand))
+	}
+
+	rsp := &proto.BrandListResponse{
+		Total: int64(len(brandPbList)),
+		Data:  brandPbList,
+	}
+	return rsp, nil
 }
 
 func (g GoodsService) CreateCategoryBrand(ctx context.Context, request *proto.CategoryBrandRequest) (*proto.CategoryBrandResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 获取brand
+	brand, err := dao.GetBrands(ctx, request.GetBrandId())
+	if err != nil {
+		log.Error("dao.GetBrands fail", log.Any("err", err))
+		return nil, err
+	}
+
+	// 获取category
+	category, err := dao.GetCategory(ctx, request.GetCategoryId())
+	if err != nil {
+		log.Error("dao.GetCategory fail", log.Any("err", err))
+		return nil, err
+	}
+
+	// 创建goodsCategoryBrand
+	goodsCategoryBrand := &model.GoodsCategoryBrand{
+		CategoryID: request.GetCategoryId(),
+		BrandID:    request.GetBrandId(),
+	}
+	result, _, err := dao.AddGoodsCategoryBrand(ctx, goodsCategoryBrand)
+	if err != nil {
+		log.Error("dao.AddGoodsCategoryBrand fail", log.Any("err", err))
+		return nil, err
+	}
+
+	return convertToCategoryBrandResponse(result, category, brand), nil
 }
 
 func (g GoodsService) DeleteCategoryBrand(ctx context.Context, request *proto.CategoryBrandRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	_, err := dao.DeleteGoodsCategoryBrand(ctx, id)
+	if err != nil {
+		log.Error("dao.DeleteGoodsCategoryBrand fail", log.Any("err", err))
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) UpdateCategoryBrand(ctx context.Context, request *proto.CategoryBrandRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	goodsCategoryBrand, err := dao.GetGoodsCategoryBrand(ctx, request.GetId())
+	if err != nil {
+		log.Error("dao.GetGoodsCategoryBrand fail", log.Any("err", err))
+		return nil, err
+	}
+
+	goodsCategoryBrand.CategoryID = request.CategoryId
+	goodsCategoryBrand.BrandID = request.BrandId
+
+	_, _, err = dao.UpdateGoodsCategoryBrand(ctx, request.Id, goodsCategoryBrand)
+	if err != nil {
+		log.Error("dao.UpdateGoodsCategoryBrand fail", log.Any("err", err))
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (g GoodsService) mustEmbedUnimplementedGoodsServer() {
